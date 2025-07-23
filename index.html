@@ -592,44 +592,18 @@
             overflow: hidden; /* Empêche le scroll quand le flou est actif */
         }
         /* Styles pour l'éditeur de texte riche */
-        .toolbar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.5rem;
-            padding: 0.5rem;
-            background-color: var(--light);
-            border: 1px solid var(--light-gray);
-            border-radius: var(--border-radius) var(--border-radius) 0 0;
-            border-bottom: none;
-        }
-        .toolbar button {
-            background: white;
-            border: 1px solid var(--light-gray);
-            border-radius: 4px;
-            padding: 0.3rem 0.5rem;
-            cursor: pointer;
-            font-size: 0.9rem;
-        }
-        .toolbar button:hover {
-            background-color: var(--light-gray);
-        }
-        .toolbar button.active {
-            background-color: var(--primary);
-            color: white;
-        }
         #notes-container {
             position: relative;
         }
         #notes {
-            border-top-left-radius: 0;
-            border-top-right-radius: 0;
             min-height: 150px;
             padding: 1rem;
             border: 1px solid var(--light-gray);
-            border-top: none;
+            border-radius: var(--border-radius);
             font-family: inherit;
             font-size: 1rem;
             resize: vertical;
+            background-color: white;
         }
         #notes:focus {
             outline: none;
@@ -762,17 +736,8 @@
                 </div>
                 <div class="form-group">
                     <h2><i class="fas fa-comment-dots"></i> Notes</h2>
-                    <!-- Toolbar for rich text editing -->
-                    <div class="toolbar">
-                        <button id="bold-btn" title="Gras"><i class="fas fa-bold"></i></button>
-                        <button id="italic-btn" title="Italique"><i class="fas fa-italic"></i></button>
-                        <button id="underline-btn" title="Souligné"><i class="fas fa-underline"></i></button>
-                        <button id="bullet-list-btn" title="Liste à puces"><i class="fas fa-list-ul"></i></button>
-                        <button id="number-list-btn" title="Liste numérotée"><i class="fas fa-list-ol"></i></button>
-                        <button id="align-left-btn" title="Aligner à gauche"><i class="fas fa-align-left"></i></button>
-                        <button id="align-center-btn" title="Centrer"><i class="fas fa-align-center"></i></button>
-                        <button id="align-right-btn" title="Aligner à droite"><i class="fas fa-align-right"></i></button>
-                    </div>
+                    <!-- *** SUPPRESSION DE LA BARRE D'OUTILS *** -->
+                    <!-- Le champ #notes est maintenant un div contenteditable simple -->
                     <div id="notes-container">
                         <div id="notes" contenteditable="true" placeholder="Conditions de paiement, informations supplémentaires..."></div>
                         <!-- Palette de couleurs -->
@@ -964,7 +929,7 @@
             const authBtn = document.getElementById('auth-button');
             const userInfo = document.getElementById('user-info');
             if (currentUser) {
-                authBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Déconnexion';
+                authBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i>';
                 authBtn.onclick = logout;
                 userInfo.textContent = `Connecté: ${currentUser.email}`;
                 userInfo.style.display = 'block';
@@ -1065,75 +1030,70 @@
             });
             // Add initial item
             addNewItem();
-            // Rich text editor buttons
-            document.getElementById('bold-btn').addEventListener('click', () => formatText('bold'));
-            document.getElementById('italic-btn').addEventListener('click', () => formatText('italic'));
-            document.getElementById('underline-btn').addEventListener('click', () => formatText('underline'));
-            document.getElementById('bullet-list-btn').addEventListener('click', () => insertList('ul'));
-            document.getElementById('number-list-btn').addEventListener('click', () => insertList('ol'));
-            document.getElementById('align-left-btn').addEventListener('click', () => alignText('left'));
-            document.getElementById('align-center-btn').addEventListener('click', () => alignText('center'));
-            document.getElementById('align-right-btn').addEventListener('click', () => alignText('right'));
+            // *** SUPPRESSION DE LA BARRE D'OUTILS ***
+            // Les gestionnaires d'événements pour les boutons de formatage ont été supprimés
+
+            // *** GESTION DE LA PALETTE DE COULEURS - CORRIGEE ***
+            // Ajout d'un écouteur d'événements sur le document pour fermer la palette
+            document.addEventListener('click', function(e) {
+                if (isColorPickerVisible) {
+                    // Vérifier si le clic est en dehors de la palette ET en dehors du bouton
+                    if (e.target !== document.getElementById('notes') && // Note: Pas de bouton de couleur
+                        !colorPicker.contains(e.target)) {
+                        colorPicker.style.display = 'none';
+                        isColorPickerVisible = false;
+                    }
+                }
+            });
+            // *** GESTION DE LA PALETTE DE COULEURS SUR LE CHAMP NOTES ***
+            document.getElementById('notes').addEventListener('contextmenu', function(e) {
+                 e.preventDefault(); // Empêcher le menu contextuel par défaut
+                 // Afficher la palette de couleurs
+                 const rect = this.getBoundingClientRect();
+                 colorPicker.style.display = 'block';
+                 colorPicker.style.top = (rect.bottom + window.scrollY) + 'px';
+                 colorPicker.style.left = (rect.left + window.scrollX) + 'px';
+                 isColorPickerVisible = true;
+            });
             // Color picker options
             document.querySelectorAll('.color-option').forEach(option => {
                 option.addEventListener('click', function() {
                     const color = this.getAttribute('data-color');
-                    document.execCommand('foreColor', false, color);
-                    document.getElementById('notes').focus();
-                    // Fermer la palette après sélection
+                    // Appliquer la couleur au texte sélectionné
+                    const selection = window.getSelection();
+                    if (selection.rangeCount > 0) {
+                        const range = selection.getRangeAt(0);
+                        const selectedText = range.toString();
+                        if (selectedText) {
+                            // Créer un span avec la couleur
+                            const span = document.createElement('span');
+                            span.style.color = color;
+                            span.textContent = selectedText;
+
+                            // Remplacer le texte sélectionné par le span
+                            range.deleteContents();
+                            range.insertNode(span);
+
+                            // Mettre à jour la sélection
+                            selection.removeAllRanges();
+                            const newRange = document.createRange();
+                            newRange.selectNodeContents(span);
+                            selection.addRange(newRange);
+                        }
+                    }
+                    // Fermer la palette
                     colorPicker.style.display = 'none';
                     isColorPickerVisible = false;
-                    // S'assurer que l'écouteur temporaire est retiré
-                    document.removeEventListener('click', handleDocumentClickForColorPicker);
+                    updatePreview();
                 });
             });
             // Update preview when notes change
             document.getElementById('notes').addEventListener('input', updatePreview);
+            document.getElementById('notes').addEventListener('paste', function(e) {
+                 // Nettoyer le contenu collé pour supprimer les styles complexes
+                 setTimeout(updatePreview, 10); // Laisser un peu de temps pour le collage
+            });
         });
-        // Fonction gestionnaire dédiée pour fermer la palette via le document
-        function handleDocumentClickForColorPicker(e) {
-            // Vérifier que la palette est censée être visible
-            // et que le clic n'est ni sur le bouton ni dans la palette
-            if (isColorPickerVisible &&
-                e.target !== document.getElementById('color-btn') &&
-                !colorPicker.contains(e.target)) {
-
-                colorPicker.style.display = 'none';
-                isColorPickerVisible = false;
-                // Retirer cet écouteur spécifique après utilisation
-                document.removeEventListener('click', handleDocumentClickForColorPicker);
-            }
-        }
-        // Fonction pour basculer l'affichage de la palette de couleurs
-        function toggleColorPicker(event) {
-            // Empêcher la propagation du clic pour éviter d'autres gestionnaires
-            event.stopPropagation();
-
-            const colorBtn = document.getElementById('color-btn');
-            const rect = colorBtn.getBoundingClientRect();
-
-            if (isColorPickerVisible) {
-                // Si la palette est visible, la cacher
-                colorPicker.style.display = 'none';
-                isColorPickerVisible = false;
-                // Retirer l'écouteur temporaire s'il existe
-                document.removeEventListener('click', handleDocumentClickForColorPicker);
-            } else {
-                // Si la palette est cachée, la montrer
-                colorPicker.style.display = 'block';
-                // Positionne la palette sous le bouton
-                colorPicker.style.top = (rect.bottom + window.scrollY) + 'px';
-                colorPicker.style.left = (rect.left + window.scrollX) + 'px';
-                isColorPickerVisible = true;
-
-                // Ajouter un écouteur temporaire sur le document pour fermer la palette
-                // lors du prochain clic en dehors, en utilisant setTimeout pour éviter
-                // qu'il ne capture le clic actuel.
-                setTimeout(() => {
-                    document.addEventListener('click', handleDocumentClickForColorPicker);
-                }, 0);
-            }
-        }
         // Fermer la modale si on clique en dehors - CORRIGE
         window.onclick = function(event) {
           // Fermer la modale de login si on clique en dehors ET que l'utilisateur est connecté
@@ -1143,297 +1103,214 @@
             }
             return; // Important: sortir après avoir géré la modale
           }
-
           // *** GESTION DE LA PALETTE DE COULEURS ***
-          // La logique de fermeture est maintenant gérée par toggleColorPicker et handleDocumentClickForColorPicker
-          // Cette section est laissée vide intentionnellement ou peut contenir d'autres vérifications.
+          // La logique de fermeture est maintenant gérée par l'écouteur document.addEventListener('click')
           // *** FIN GESTION DE LA PALETTE DE COULEURS ***
         }
-        // Rich text editor functions
-        function formatText(command) {
-            document.execCommand(command, false, null);
-            document.getElementById('notes').focus();
-        }
-        function insertList(type) {
-            if (type === 'ul') {
-                document.execCommand('insertUnorderedList', false, null);
-            } else {
-                document.execCommand('insertOrderedList', false, null);
-            }
-            document.getElementById('notes').focus();
-        }
-        function alignText(align) {
-            document.execCommand(`justify${align}`, false, null);
-            document.getElementById('notes').focus();
-        }
-        function addNewItem() {
-            const itemsList = document.getElementById('items-list');
-            const itemCount = itemsList.children.length + 1;
-            const itemRow = document.createElement('div');
-            itemRow.className = 'item-row';
-            itemRow.innerHTML = `
-                <div class="item-desc">
-                    <input type="text" class="item-description" placeholder="Description de l'article ${itemCount}" value="Article ${itemCount}">
-                </div>
-                <div class="item-qty">
-                    <input type="number" class="item-quantity" value="1" min="1">
-                </div>
-                <div class="item-price">
-                    <input type="number" class="item-unit-price" value="100" min="0" step="0.01">
-                </div>
-                <div class="item-total">
-                    <span class="item-total-value">100.00</span> <span class="currency">DT</span>
-                </div>
-                <div class="item-action">
-                    <button class="btn btn-danger btn-sm remove-item"><i class="fas fa-trash"></i></button>
-                </div>
-            `;
-            itemsList.appendChild(itemRow);
-            // Add events for automatic calculation
-            const quantityInput = itemRow.querySelector('.item-quantity');
-            const priceInput = itemRow.querySelector('.item-unit-price');
-            const calculateTotal = () => {
-                const quantity = parseFloat(quantityInput.value) || 0;
-                const price = parseFloat(priceInput.value) || 0;
-                const total = quantity * price;
-                itemRow.querySelector('.item-total-value').textContent = total.toFixed(2);
-                updatePreview();
-            };
-            quantityInput.addEventListener('input', calculateTotal);
-            priceInput.addEventListener('input', calculateTotal);
-            // Add event to remove item
-            itemRow.querySelector('.remove-item').addEventListener('click', function() {
-                itemsList.removeChild(itemRow);
-                updatePreview();
-            });
-            updatePreview();
-        }
-        function updatePreview() {
-            // Update header information
-            document.getElementById('preview-number').textContent = document.getElementById('quote-number').value || 'DEV-0000';
-            const dateValue = document.getElementById('quote-date').value;
-            if (dateValue) {
-                const date = new Date(dateValue);
-                document.getElementById('preview-date').textContent = date.toLocaleDateString('fr-FR');
-            }
-            document.getElementById('preview-validity').textContent =
-                `${document.getElementById('validity').value || 0} jours`;
-            // Update client information
-            document.getElementById('preview-client-name').textContent =
-                document.getElementById('client-name').value || 'Non spécifié';
-            document.getElementById('preview-client-address').textContent =
-                document.getElementById('client-address').value || 'Non spécifié';
-            const clientEmail = document.getElementById('client-email').value || '';
-            const clientPhone = document.getElementById('client-phone').value || '';
-            document.getElementById('preview-client-contact').textContent =
-                `${clientEmail}${clientEmail && clientPhone ? ' | ' : ''}${clientPhone}`;
-            // Update items
-            const previewItems = document.getElementById('preview-items');
-            previewItems.innerHTML = '';
-            const currency = document.getElementById('currency').value;
-            const itemsList = document.getElementById('items-list');
-            let subtotal = 0;
-            Array.from(itemsList.children).forEach(itemRow => {
-                const description = itemRow.querySelector('.item-description').value || 'Article';
-                const quantity = parseFloat(itemRow.querySelector('.item-quantity').value) || 0;
-                const price = parseFloat(itemRow.querySelector('.item-unit-price').value) || 0;
-                const total = quantity * price;
-                subtotal += total;
-                const row = document.createElement('tr');
-                row.innerHTML = `
-                    <td>${description}</td>
-                    <td>${quantity}</td>
-                    <td>${price.toFixed(2)} ${currency}</td>
-                    <td>${total.toFixed(2)} ${currency}</td>
-                `;
-                previewItems.appendChild(row);
-            });
-            // Update totals
-            const discountRate = parseFloat(document.getElementById('discount').value) || 0;
-            const discountAmount = subtotal * discountRate / 100;
-            const taxRate = parseFloat(document.getElementById('tax').value) || 0;
-            const taxAmount = (subtotal - discountAmount) * taxRate / 100;
-            const total = subtotal - discountAmount + taxAmount;
-            document.getElementById('preview-subtotal').textContent =
-                `${subtotal.toFixed(2)} ${currency}`;
-            document.getElementById('preview-discount-rate').textContent = discountRate;
-            document.getElementById('preview-discount').textContent =
-                `-${discountAmount.toFixed(2)} ${currency}`;
-            document.getElementById('preview-tax-rate').textContent = taxRate;
-            document.getElementById('preview-tax').textContent =
-                `+${taxAmount.toFixed(2)} ${currency}`;
-            document.getElementById('preview-total').innerHTML =
-                `<strong>${total.toFixed(2)} ${currency}</strong>`;
-            // Update notes
-            const notesContent = document.getElementById('notes').innerHTML;
-            document.getElementById('preview-notes').innerHTML = notesContent || 'Aucune note spécifiée.';
-            // Update currency symbols
-            document.querySelectorAll('.currency').forEach(el => {
-                el.textContent = currency;
-            });
-        }
+        // *** FONCTION POUR GENERER LE PDF - APPROCHE ULTRA-SIMPLE ET ROBUSTE ***
         function generatePDF() {
-            const doc = new jsPDF();
-            // Get data from preview
-            const quoteNumber = document.getElementById('preview-number').textContent;
-            const quoteDate = document.getElementById('preview-date').textContent;
-            const quoteValidity = document.getElementById('preview-validity').textContent;
-            const clientName = document.getElementById('preview-client-name').textContent;
-            const clientAddress = document.getElementById('preview-client-address').textContent;
-            const clientContact = document.getElementById('preview-client-contact').textContent;
-            const currency = document.getElementById('currency').value;
-            const subtotal = document.getElementById('preview-subtotal').textContent;
-            const discountRate = document.getElementById('preview-discount-rate').textContent;
-            const discountAmount = document.getElementById('preview-discount').textContent;
-            const taxRate = document.getElementById('preview-tax-rate').textContent;
-            const taxAmount = document.getElementById('preview-tax').textContent;
-            const total = document.getElementById('preview-total').textContent;
-            // Set font
-            doc.setFont("helvetica");
-            // Add company header
-            doc.setFillColor(67, 97, 238); // Primary color
-            doc.rect(0, 0, 210, 30, 'F');
-            doc.setTextColor(255, 255, 255);
-            doc.setFontSize(24);
-            doc.setFont(undefined, 'bold');
-            doc.text('DEVIS', 105, 20, { align: 'center' });
-            // Add quote info
-            doc.setTextColor(0, 0, 0);
-            doc.setFontSize(12);
-            doc.setFont(undefined, 'normal');
-            doc.text(`N°: ${quoteNumber}`, 150, 40);
-            doc.text(`Date: ${quoteDate}`, 150, 48);
-            doc.text(`Validité: ${quoteValidity}`, 150, 56);
-            // Add client info
-            doc.setFillColor(248, 249, 250); // Light gray
-            doc.rect(10, 65, 190, 30, 'F');
-            doc.setTextColor(0, 0, 0);
-            doc.setFontSize(14);
-            doc.setFont(undefined, 'bold');
-            doc.text('Client', 15, 75);
-            doc.setFontSize(12);
-            doc.setFont(undefined, 'normal');
-            doc.text(clientName, 15, 85);
-            doc.text(clientAddress, 15, 92);
-            doc.text(clientContact, 15, 99);
-            // Add items table using autoTable plugin
-            const itemsData = [];
-            const itemsList = document.getElementById('items-list');
-            Array.from(itemsList.children).forEach(itemRow => {
-                const description = itemRow.querySelector('.item-description').value || 'Article';
-                const quantity = parseFloat(itemRow.querySelector('.item-quantity').value) || 0;
-                const price = parseFloat(itemRow.querySelector('.item-unit-price').value) || 0;
-                const total = quantity * price;
-                itemsData.push([
-                    description,
-                    quantity.toString(),
-                    `${price.toFixed(2)} ${currency}`,
-                    `${total.toFixed(2)} ${currency}`
-                ]);
-            });
-            doc.autoTable({
-                head: [['Description', 'Quantité', 'Prix unitaire', 'Total']],
-                body: itemsData,
-                startY: 105,
-                theme: 'grid',
-                headStyles: {
-                    fillColor: [67, 97, 238],
-                    textColor: [255, 255, 255],
-                    fontStyle: 'bold'
-                },
-                styles: {
-                    fontSize: 10,
-                    cellPadding: 3
-                },
-                columnStyles: {
-                    0: { cellWidth: 80 },
-                    1: { cellWidth: 25, halign: 'center' },
-                    2: { cellWidth: 35, halign: 'right' },
-                    3: { cellWidth: 35, halign: 'right' }
-                }
-            });
-            // Add totals
-            const finalY = doc.lastAutoTable.finalY;
-            doc.setFontSize(12);
-            doc.setFont(undefined, 'normal');
-            // Subtotal
-            doc.text('Sous-total:', 140, finalY + 15);
-            doc.text(subtotal, 180, finalY + 15, { align: 'right' });
-            // Discount
-            if (parseFloat(discountRate) > 0) {
-                doc.text(`Remise (${discountRate}%):`, 140, finalY + 23);
-                doc.text(discountAmount, 180, finalY + 23, { align: 'right' });
-            }
-            // Tax
-            if (parseFloat(taxRate) > 0) {
-                doc.text(`TVA (${taxRate}%):`, 140, finalY + 31);
-                doc.text(taxAmount, 180, finalY + 31, { align: 'right' });
-            }
-            // Total
-            doc.setFont(undefined, 'bold');
-            doc.text('TOTAL:', 140, finalY + 42);
-            doc.text(total, 180, finalY + 42, { align: 'right' });
-            // Add notes section with improved HTML processing
-            const notesContent = document.getElementById('notes').innerHTML;
-            if (notesContent && notesContent.trim() !== '') {
+            try {
+                const doc = new jsPDF();
+                const pageWidth = doc.internal.pageSize.width;
+                const pageHeight = doc.internal.pageSize.height;
+                const margin = 15;
+                const contentWidth = pageWidth - 2 * margin;
+                let currentY = margin;
+
+                // Get data from preview
+                const quoteNumber = document.getElementById('preview-number').textContent;
+                const quoteDate = document.getElementById('preview-date').textContent;
+                const quoteValidity = document.getElementById('preview-validity').textContent;
+                const clientName = document.getElementById('preview-client-name').textContent;
+                const clientAddress = document.getElementById('preview-client-address').textContent;
+                const clientContact = document.getElementById('preview-client-contact').textContent;
+                const currency = document.getElementById('currency').value;
+                const subtotal = document.getElementById('preview-subtotal').textContent;
+                const discountRate = document.getElementById('preview-discount-rate').textContent;
+                const discountAmount = document.getElementById('preview-discount').textContent;
+                const taxRate = document.getElementById('preview-tax-rate').textContent;
+                const taxAmount = document.getElementById('preview-tax').textContent;
+                const total = document.getElementById('preview-total').textContent;
+
+                // --- HEADER ---
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(22);
+                doc.setTextColor(67, 97, 238); // Primary color
+                doc.text('DEVIS', pageWidth / 2, currentY, { align: 'center' });
+                currentY += 10;
+
+                doc.setFont("helvetica", "normal");
                 doc.setFontSize(12);
-                doc.setFont(undefined, 'normal');
                 doc.setTextColor(0, 0, 0);
-                // Add a title for notes
-                doc.text('Notes:', 15, finalY + 55);
-                // Process HTML content for PDF with better formatting
-                let yPosition = finalY + 65;
-                const tempDiv = document.createElement('div');
-                tempDiv.innerHTML = notesContent;
-                // Process each child node
-                const processNode = (node) => {
-                    if (node.nodeType === Node.TEXT_NODE) {
-                        const text = node.textContent.trim();
-                        if (text) {
-                            const lines = doc.splitTextToSize(text, 180);
-                            lines.forEach(line => {
-                                if (yPosition > 280) { // Check if we need a new page
-                                    doc.addPage();
-                                    yPosition = 20;
-                                }
-                                doc.text(line, 15, yPosition);
-                                yPosition += 7;
-                            });
-                        }
-                    } else if (node.nodeType === Node.ELEMENT_NODE) {
-                        let fontStyle = doc.getFont().fontStyle;
-                        let fontSize = doc.getFontSize();
-                        let textColor = doc.getTextColor();
-                        // Apply styles based on element type
-                        if (node.tagName === 'B' || node.tagName === 'STRONG') {
-                            doc.setFont(undefined, 'bold');
-                        } else if (node.tagName === 'I' || node.tagName === 'EM') {
-                            doc.setFont(undefined, 'italic');
-                        } else if (node.tagName === 'U') {
-                            // jsPDF doesn't have direct underline, we'll handle it after
-                        }
-                        // Process child nodes
-                        Array.from(node.childNodes).forEach(child => {
-                            processNode(child);
-                        });
-                        // Add line break after block elements
-                        if (['DIV', 'P', 'BR'].includes(node.tagName)) {
-                            yPosition += 5;
-                        }
-                        // Reset styles
-                        doc.setFont(undefined, fontStyle);
-                        doc.setFontSize(fontSize);
-                        // textColor reset is more complex in jsPDF, so we'll skip it for now
-                    }
-                };
-                // Process all nodes
-                Array.from(tempDiv.childNodes).forEach(node => {
-                    processNode(node);
+                doc.text(`N°: ${quoteNumber}`, pageWidth - margin - 60, currentY);
+                doc.text(`Date: ${quoteDate}`, pageWidth - margin - 60, currentY + 6);
+                doc.text(`Validité: ${quoteValidity}`, pageWidth - margin - 60, currentY + 12);
+                currentY += 20;
+
+                // --- CLIENT INFO ---
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(14);
+                doc.setTextColor(58, 12, 163); // Secondary color
+                doc.text('Client', margin, currentY);
+                currentY += 8;
+
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(12);
+                doc.setTextColor(0, 0, 0);
+                doc.text(clientName, margin, currentY);
+                currentY += 6;
+                doc.text(clientAddress, margin, currentY);
+                currentY += 6;
+                doc.text(clientContact, margin, currentY);
+                currentY += 10;
+
+                // --- ITEMS TABLE ---
+                const itemsData = [];
+                const itemsList = document.getElementById('items-list');
+                Array.from(itemsList.children).forEach(itemRow => {
+                    const description = itemRow.querySelector('.item-description').value || 'Article';
+                    const quantity = parseFloat(itemRow.querySelector('.item-quantity').value) || 0;
+                    const price = parseFloat(itemRow.querySelector('.item-unit-price').value) || 0;
+                    const total = quantity * price;
+                    itemsData.push([
+                        description,
+                        quantity.toString(),
+                        `${price.toFixed(2)} ${currency}`,
+                        `${total.toFixed(2)} ${currency}`
+                    ]);
                 });
+
+                if (itemsData.length > 0) {
+                    doc.autoTable({
+                        head: [['Description', 'Qté', 'Prix unitaire', 'Total']],
+                        body: itemsData,
+                        startY: currentY,
+                        theme: 'grid',
+                        headStyles: {
+                            fillColor: [67, 97, 238],
+                            textColor: [255, 255, 255],
+                            fontStyle: 'bold',
+                            fontSize: 11
+                        },
+                        bodyStyles: {
+                            fontSize: 10
+                        },
+                        styles: {
+                            cellPadding: 3,
+                            overflow: 'linebreak',
+                            halign: 'left'
+                        },
+                        // Largeurs fixes et simples pour éviter les erreurs de dimension
+                        columnStyles: {
+                            0: { cellWidth: 80 },  // Description
+                            1: { cellWidth: 20, halign: 'center' }, // Qté
+                            2: { cellWidth: 35, halign: 'right' },  // Prix unitaire
+                            3: { cellWidth: 35, halign: 'right' }   // Total
+                        },
+                        margin: { left: margin, right: margin },
+                        didDrawPage: function(data) {
+                            // Mettre à jour currentY après le dessin du tableau
+                            currentY = data.cursor.y + 5;
+                        }
+                    });
+                    // Mettre à jour currentY après le tableau
+                    currentY = doc.lastAutoTable.finalY + 10;
+                } else {
+                    doc.setFont("helvetica", "normal");
+                    doc.setFontSize(12);
+                    doc.setTextColor(0, 0, 0);
+                    doc.text('Aucun article ajouté.', margin, currentY);
+                    currentY += 15;
+                }
+
+                // --- TOTALS ---
+                const totalsStartY = currentY;
+                const totalsRightEdge = pageWidth - margin;
+                const labelColumn = totalsRightEdge - 70;
+                const valueColumn = totalsRightEdge;
+
+                doc.setFont("helvetica", "normal");
+                doc.setFontSize(12);
+                doc.setTextColor(0, 0, 0);
+
+                doc.text('Sous-total:', labelColumn, totalsStartY);
+                doc.text(subtotal, valueColumn, totalsStartY, { align: 'right' });
+
+                let lineSpacing = 7;
+                currentY = totalsStartY + lineSpacing;
+
+                if (parseFloat(discountRate) > 0) {
+                    doc.text(`Remise (${discountRate}%):`, labelColumn, currentY);
+                    doc.text(discountAmount, valueColumn, currentY, { align: 'right' });
+                    currentY += lineSpacing;
+                }
+
+                if (parseFloat(taxRate) > 0) {
+                    doc.text(`TVA (${taxRate}%):`, labelColumn, currentY);
+                    doc.text(taxAmount, valueColumn, currentY, { align: 'right' });
+                    currentY += lineSpacing;
+                }
+
+                doc.setFont("helvetica", "bold");
+                doc.setFontSize(14);
+                doc.setTextColor(67, 97, 238); // Primary color
+                doc.text('TOTAL:', labelColumn, currentY);
+                doc.text(total, valueColumn, currentY, { align: 'right' });
+                currentY += 10;
+
+            // --- NOTES ---
+const notesContent = document.getElementById('notes').textContent?.trim() || '';
+if (notesContent) {
+    const estimatedLines = doc.splitTextToSize(notesContent, contentWidth).length;
+    const estimatedHeight = estimatedLines * 6;
+
+    if (currentY + estimatedHeight > pageHeight - margin) {
+        doc.addPage();
+        currentY = margin;
+    }
+
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.setTextColor(58, 12, 163);
+    doc.text('Notes:', margin, currentY);
+    currentY += 8;
+
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+    doc.setTextColor(0, 0, 0);
+    const splitNotes = doc.splitTextToSize(notesContent, contentWidth);
+    doc.text(splitNotes, margin, currentY);
+
+    // Ajout du trait bleu fin avant le footer
+    doc.setDrawColor(58, 12, 163);
+    doc.setLineWidth(0.3);
+    doc.line(margin, pageHeight - 30, pageWidth - margin, pageHeight - 30);
+
+    // Footer stylisé
+    const footerY = pageHeight - 25;
+    doc.setFontSize(9);
+    doc.setTextColor(100, 100, 100);
+    
+    // Société et contact (gauche)
+    doc.text("Société Application Automatisée Avancée Innovante A³I", margin, footerY);
+    doc.text("Résidence Yosr Bloc A31, Raoued Ariana 2081", margin, footerY + 5);
+    doc.text("Tél: 50 122 990", margin, footerY + 10);
+
+    // Date et heure (droite)
+    const now = new Date();
+    const dateString = `Généré le ${now.toLocaleDateString()} à ${now.toLocaleTimeString()}`;
+    const dateWidth = doc.getStringUnitWidth(dateString) * doc.internal.getFontSize() / doc.internal.scaleFactor;
+    doc.text(dateString, pageWidth - margin - dateWidth, footerY + 5);
+}
+                
+
+                // Save the PDF
+                doc.save(`devis-${quoteNumber}.pdf`);
+                showToast('PDF généré avec succès!');
+            } catch (error) {
+                console.error("Erreur lors de la génération du PDF:", error);
+                showToast('Erreur lors de la génération du PDF: ' + error.message, 'error');
             }
-            // Save the PDF
-            doc.save(`devis-${quoteNumber}.pdf`);
-            showToast('PDF généré avec succès!');
         }
         function saveQuote() {
             // Get and validate data
@@ -1809,6 +1686,114 @@
             setTimeout(() => {
                 toast.classList.remove('show');
             }, 3000);
+        }
+        // *** FONCTIONS POUR LA GESTION DES ARTICLES ***
+        function addNewItem() {
+            const itemsList = document.getElementById('items-list');
+            const itemCount = itemsList.children.length + 1;
+            const itemRow = document.createElement('div');
+            itemRow.className = 'item-row';
+            itemRow.innerHTML = `
+                <div class="item-desc">
+                    <input type="text" class="item-description" placeholder="Description de l'article ${itemCount}" value="Article ${itemCount}">
+                </div>
+                <div class="item-qty">
+                    <input type="number" class="item-quantity" value="1" min="1">
+                </div>
+                <div class="item-price">
+                    <input type="number" class="item-unit-price" value="100" min="0" step="0.01">
+                </div>
+                <div class="item-total">
+                    <span class="item-total-value">100.00</span> <span class="currency">DT</span>
+                </div>
+                <div class="item-action">
+                    <button class="btn btn-danger btn-sm remove-item"><i class="fas fa-trash"></i></button>
+                </div>
+            `;
+            itemsList.appendChild(itemRow);
+            // Add events for automatic calculation
+            const quantityInput = itemRow.querySelector('.item-quantity');
+            const priceInput = itemRow.querySelector('.item-unit-price');
+            const calculateTotal = () => {
+                const quantity = parseFloat(quantityInput.value) || 0;
+                const price = parseFloat(priceInput.value) || 0;
+                const total = quantity * price;
+                itemRow.querySelector('.item-total-value').textContent = total.toFixed(2);
+                updatePreview();
+            };
+            quantityInput.addEventListener('input', calculateTotal);
+            priceInput.addEventListener('input', calculateTotal);
+            // Add event to remove item
+            itemRow.querySelector('.remove-item').addEventListener('click', function() {
+                itemsList.removeChild(itemRow);
+                updatePreview();
+            });
+            updatePreview();
+        }
+        // *** FONCTION POUR METTRE A JOUR L'APERCU ***
+        function updatePreview() {
+            // Update header information
+            document.getElementById('preview-number').textContent = document.getElementById('quote-number').value || 'DEV-0000';
+            const dateValue = document.getElementById('quote-date').value;
+            if (dateValue) {
+                const date = new Date(dateValue);
+                document.getElementById('preview-date').textContent = date.toLocaleDateString('fr-FR');
+            }
+            document.getElementById('preview-validity').textContent =
+                `${document.getElementById('validity').value || 0} jours`;
+            // Update client information
+            document.getElementById('preview-client-name').textContent =
+                document.getElementById('client-name').value || 'Non spécifié';
+            document.getElementById('preview-client-address').textContent =
+                document.getElementById('client-address').value || 'Non spécifié';
+            const clientEmail = document.getElementById('client-email').value || '';
+            const clientPhone = document.getElementById('client-phone').value || '';
+            document.getElementById('preview-client-contact').textContent =
+                `${clientEmail}${clientEmail && clientPhone ? ' | ' : ''}${clientPhone}`;
+            // Update items
+            const previewItems = document.getElementById('preview-items');
+            previewItems.innerHTML = '';
+            const currency = document.getElementById('currency').value;
+            const itemsList = document.getElementById('items-list');
+            let subtotal = 0;
+            Array.from(itemsList.children).forEach(itemRow => {
+                const description = itemRow.querySelector('.item-description').value || 'Article';
+                const quantity = parseFloat(itemRow.querySelector('.item-quantity').value) || 0;
+                const price = parseFloat(itemRow.querySelector('.item-unit-price').value) || 0;
+                const total = quantity * price;
+                subtotal += total;
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${description}</td>
+                    <td>${quantity}</td>
+                    <td>${price.toFixed(2)} ${currency}</td>
+                    <td>${total.toFixed(2)} ${currency}</td>
+                `;
+                previewItems.appendChild(row);
+            });
+            // Update totals
+            const discountRate = parseFloat(document.getElementById('discount').value) || 0;
+            const discountAmount = subtotal * discountRate / 100;
+            const taxRate = parseFloat(document.getElementById('tax').value) || 0;
+            const taxAmount = (subtotal - discountAmount) * taxRate / 100;
+            const total = subtotal - discountAmount + taxAmount;
+            document.getElementById('preview-subtotal').textContent =
+                `${subtotal.toFixed(2)} ${currency}`;
+            document.getElementById('preview-discount-rate').textContent = discountRate;
+            document.getElementById('preview-discount').textContent =
+                `-${discountAmount.toFixed(2)} ${currency}`;
+            document.getElementById('preview-tax-rate').textContent = taxRate;
+            document.getElementById('preview-tax').textContent =
+                `+${taxAmount.toFixed(2)} ${currency}`;
+            document.getElementById('preview-total').innerHTML =
+                `<strong>${total.toFixed(2)} ${currency}</strong>`;
+            // Update notes
+            const notesContent = document.getElementById('notes').innerHTML;
+            document.getElementById('preview-notes').innerHTML = notesContent || 'Aucune note spécifiée.';
+            // Update currency symbols
+            document.querySelectorAll('.currency').forEach(el => {
+                el.textContent = currency;
+            });
         }
     </script>
 </body>
