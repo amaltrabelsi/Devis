@@ -6,6 +6,7 @@
     <title>Générateur de Devis Pro</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -26,13 +27,11 @@
             --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             --transition: all 0.3s ease;
         }
-
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #f5f7ff;
@@ -40,13 +39,11 @@
             line-height: 1.6;
             -webkit-font-smoothing: antialiased;
         }
-
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 2rem;
         }
-
         header {
             text-align: center;
             margin-bottom: 2rem;
@@ -58,7 +55,6 @@
             position: relative;
             overflow: hidden;
         }
-
         header::before {
             content: '';
             position: absolute;
@@ -69,32 +65,27 @@
             background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
             transform: rotate(30deg);
         }
-
         header h1 {
             font-size: 2.5rem;
             margin-bottom: 0.5rem;
             position: relative;
         }
-
         header p {
             font-size: 1.1rem;
             opacity: 0.9;
             position: relative;
         }
-
         .app-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 2rem;
             margin-bottom: 2rem;
         }
-
         @media (max-width: 992px) {
             .app-grid {
                 grid-template-columns: 1fr;
             }
         }
-
         .panel {
             background: white;
             border-radius: var(--border-radius);
@@ -103,11 +94,9 @@
             height: fit-content;
             transition: var(--transition);
         }
-
         .panel:hover {
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
         }
-
         .panel h2 {
             color: var(--secondary);
             margin-bottom: 1.5rem;
@@ -117,28 +106,23 @@
             align-items: center;
             font-size: 1.4rem;
         }
-
         .panel h2 i {
             margin-right: 0.8rem;
             color: var(--accent);
             font-size: 1.2rem;
         }
-
         .form-group {
             margin-bottom: 1.5rem;
         }
-
         .form-row {
             display: flex;
             gap: 1rem;
             margin-bottom: 1rem;
         }
-
         .form-row .form-group {
             flex: 1;
             margin-bottom: 0;
         }
-
         label {
             display: block;
             margin-bottom: 0.5rem;
@@ -146,7 +130,6 @@
             color: var(--dark);
             font-size: 0.95rem;
         }
-
         input, select, textarea {
             width: 100%;
             padding: 0.8rem 1rem;
@@ -157,25 +140,21 @@
             transition: var(--transition);
             background-color: white;
         }
-
         input:focus, select:focus, textarea:focus {
             outline: none;
             border-color: var(--accent);
             box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
         }
-
         textarea {
             min-height: 100px;
             resize: vertical;
             line-height: 1.5;
         }
-
         .items-container {
             border: 1px solid var(--light-gray);
             border-radius: var(--border-radius);
             overflow: hidden;
         }
-
         .items-header {
             display: grid;
             grid-template-columns: 3fr 1fr 1fr 1fr 0.5fr;
@@ -185,7 +164,6 @@
             border-bottom: 1px solid var(--light-gray);
             font-size: 0.9rem;
         }
-
         .item-row {
             display: grid;
             grid-template-columns: 3fr 1fr 1fr 1fr 0.5fr;
@@ -194,31 +172,25 @@
             border-bottom: 1px solid var(--light-gray);
             transition: var(--transition);
         }
-
         .item-row:hover {
             background-color: var(--primary-light);
         }
-
         .item-row:last-child {
             border-bottom: none;
         }
-
         .item-row input {
             padding: 0.6rem;
             width: calc(100% - 0.5rem);
             background-color: transparent;
             border: 1px solid transparent;
         }
-
         .item-row input:focus {
             border-color: var(--accent);
             background-color: white;
         }
-
         .item-total-value {
             font-weight: 500;
         }
-
         .btn {
             display: inline-flex;
             align-items: center;
@@ -233,83 +205,68 @@
             transition: var(--transition);
             white-space: nowrap;
         }
-
         .btn i {
             margin-right: 0.5rem;
         }
-
         .btn-primary {
             background-color: var(--primary);
             color: white;
         }
-
         .btn-primary:hover {
             background-color: #3a56d8;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(67, 97, 238, 0.2);
         }
-
         .btn-success {
             background-color: #28a745;
             color: white;
         }
-
         .btn-success:hover {
             background-color: #218838;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(40, 167, 69, 0.2);
         }
-
         .btn-warning {
             background-color: var(--warning);
             color: white;
         }
-
         .btn-warning:hover {
             background-color: #e07e0c;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(248, 150, 30, 0.2);
         }
-
         .btn-danger {
             background-color: var(--danger);
             color: white;
         }
-
         .btn-danger:hover {
             background-color: #e3175a;
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(247, 37, 133, 0.2);
         }
-
         .btn-outline {
             background-color: transparent;
             border: 1px solid var(--gray);
             color: var(--dark);
         }
-
         .btn-outline:hover {
             background-color: var(--light);
             transform: translateY(-2px);
         }
-
         .btn-sm {
             padding: 0.5rem 1rem;
             font-size: 0.9rem;
         }
-
         .btn-xs {
             padding: 0.4rem 0.8rem;
             font-size: 0.8rem;
         }
-
         .actions {
             display: flex;
             gap: 1rem;
             margin-top: 2rem;
             flex-wrap: wrap;
         }
-
         .quote-preview {
             background: white;
             padding: 2rem;
@@ -317,11 +274,9 @@
             box-shadow: var(--box-shadow);
             transition: var(--transition);
         }
-
         .quote-preview:hover {
             box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
         }
-
         .quote-header {
             display: flex;
             justify-content: space-between;
@@ -329,39 +284,32 @@
             flex-wrap: wrap;
             gap: 1rem;
         }
-
         .quote-title {
             font-size: 1.8rem;
             color: var(--secondary);
             font-weight: 700;
         }
-
         .quote-meta {
             text-align: right;
         }
-
         .quote-meta div {
             margin-bottom: 0.3rem;
         }
-
         .quote-client {
             margin-bottom: 2rem;
             background-color: var(--light);
             padding: 1.2rem;
             border-radius: var(--border-radius);
         }
-
         .quote-client h3 {
             margin-bottom: 0.8rem;
             color: var(--secondary);
         }
-
         .quote-table {
             width: 100%;
             border-collapse: collapse;
             margin-bottom: 2rem;
         }
-
         .quote-table th {
             background-color: var(--light);
             padding: 0.8rem;
@@ -369,30 +317,25 @@
             border-bottom: 2px solid var(--light-gray);
             font-weight: 600;
         }
-
         .quote-table td {
             padding: 0.8rem;
             border-bottom: 1px solid var(--light-gray);
         }
-
         .quote-totals {
             width: 100%;
             max-width: 300px;
             margin-left: auto;
             margin-bottom: 2rem;
         }
-
         .quote-totals td {
             padding: 0.6rem 0;
         }
-
         .quote-totals tr:last-child td {
             font-weight: 600;
             font-size: 1.1rem;
             border-top: 2px solid var(--light-gray);
             padding-top: 0.8rem;
         }
-
         .quote-notes {
             margin-top: 2rem;
             padding-top: 1.5rem;
@@ -401,19 +344,16 @@
             padding: 1.2rem;
             border-radius: var(--border-radius);
         }
-
         .quote-notes h3 {
             margin-bottom: 0.8rem;
             color: var(--secondary);
         }
-
         footer {
             text-align: center;
             padding: 1.5rem;
             color: var(--gray);
             font-size: 0.9rem;
         }
-
         .toast {
             position: fixed;
             bottom: 20px;
@@ -430,25 +370,20 @@
             display: flex;
             align-items: center;
         }
-
         .toast i {
             margin-right: 0.8rem;
             font-size: 1.2rem;
         }
-
         .toast.show {
             transform: translateY(0);
             opacity: 1;
         }
-
         .toast.error {
             background-color: var(--danger);
         }
-
         .toast.warning {
             background-color: var(--warning);
         }
-
         /* Modal styles */
         .modal {
             display: none;
@@ -462,7 +397,6 @@
             background-color: rgba(0,0,0,0.4);
             backdrop-filter: blur(2px);
         }
-
         .modal-content {
             background-color: #fefefe;
             margin: 5% auto;
@@ -475,7 +409,6 @@
             display: flex;
             flex-direction: column;
         }
-
         .modal-header {
             display: flex;
             justify-content: space-between;
@@ -484,19 +417,16 @@
             padding-bottom: 1rem;
             border-bottom: 1px solid var(--light-gray);
         }
-
         .modal-title {
             font-size: 1.5rem;
             color: var(--secondary);
             display: flex;
             align-items: center;
         }
-
         .modal-title i {
             margin-right: 0.8rem;
             color: var(--accent);
         }
-
         .close {
             color: var(--gray);
             font-size: 28px;
@@ -504,19 +434,16 @@
             cursor: pointer;
             transition: var(--transition);
         }
-
         .close:hover {
             color: var(--dark);
             transform: rotate(90deg);
         }
-
         .quotes-list {
             flex: 1;
             overflow-y: auto;
             margin: 1rem 0;
             padding-right: 0.5rem;
         }
-
         .quote-item {
             padding: 1.2rem;
             border: 1px solid var(--light-gray);
@@ -526,49 +453,41 @@
             transition: var(--transition);
             background-color: white;
         }
-
         .quote-item:hover {
             background-color: var(--primary-light);
             border-color: var(--accent);
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(67, 97, 238, 0.1);
         }
-
         .quote-item-header {
             display: flex;
             justify-content: space-between;
             margin-bottom: 0.5rem;
             align-items: center;
         }
-
         .quote-item-number {
             font-weight: 600;
             color: var(--secondary);
             font-size: 1.1rem;
         }
-
         .quote-item-date {
             color: var(--gray);
             font-size: 0.85rem;
         }
-
         .quote-item-client {
             font-weight: 500;
             margin-bottom: 0.3rem;
         }
-
         .quote-item-total {
             font-weight: 600;
             color: var(--primary);
             font-size: 1.1rem;
         }
-
         .quote-item-actions {
             display: flex;
             gap: 0.5rem;
             margin-top: 0.8rem;
         }
-
         .modal-actions {
             display: flex;
             justify-content: flex-end;
@@ -577,112 +496,119 @@
             padding-top: 1.5rem;
             border-top: 1px solid var(--light-gray);
         }
-
         .empty-state {
             text-align: center;
             padding: 2rem;
             color: var(--gray);
         }
-
         .empty-state i {
             font-size: 3rem;
             margin-bottom: 1rem;
             color: var(--light-gray);
         }
-
         /* Responsive adjustments */
         @media (max-width: 768px) {
             .items-header, .item-row {
                 grid-template-columns: 2fr 1fr 1fr 1fr 0.5fr;
             }
-            
             .form-row {
                 flex-direction: column;
                 gap: 1rem;
             }
-            
             .actions {
                 flex-direction: column;
             }
-            
             .btn {
                 width: 100%;
             }
         }
-
         @media (max-width: 576px) {
             .container {
                 padding: 1rem;
             }
-            
             header {
                 padding: 1.5rem 1rem;
             }
-            
             header h1 {
                 font-size: 2rem;
             }
-            
             .panel {
                 padding: 1rem;
             }
-            
             .items-header, .item-row {
                 grid-template-columns: 1.5fr 1fr 1fr 1fr 0.5fr;
                 font-size: 0.8rem;
                 padding: 0.6rem;
             }
-            
             .item-row input {
                 font-size: 0.8rem;
                 padding: 0.4rem;
             }
-            
             .quote-preview {
                 padding: 1rem;
             }
-            
             .quote-header {
                 flex-direction: column;
             }
-            
             .quote-meta {
                 text-align: left;
             }
         }
-
         /* Custom scrollbar */
         ::-webkit-scrollbar {
             width: 8px;
             height: 8px;
         }
-
         ::-webkit-scrollbar-track {
             background: var(--light);
             border-radius: 10px;
         }
-
         ::-webkit-scrollbar-thumb {
             background: var(--gray);
             border-radius: 10px;
         }
-
         ::-webkit-scrollbar-thumb:hover {
             background: var(--dark);
         }
+
+        /* Styles pour le flou */
+        #blur-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            pointer-events: none; /* Permet de cliquer à travers */
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+        #blur-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+        body.blur-active {
+            overflow: hidden; /* Empêche le scroll quand le flou est actif */
+        }
     </style>
 </head>
-<body>
-    <div class="container">
-        <header>
-            <h1><i class="fas fa-file-invoice"></i> Générateur de Devis Professionnel</h1>
-            <p>Créez, enregistrez et exportez vos devis en PDF</p>
-        </header>
+<body class="blur-active">
+    <!-- Overlay de flou -->
+    <div id="blur-overlay"></div>
 
+    <header>
+        <h1><i class="fas fa-file-invoice"></i> Générateur de Devis Professionnel</h1>
+        <p>Créez, enregistrez et exportez vos devis en PDF</p>
+        <div id="user-info" style="position: absolute; top: 10px; right: 20px; background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 20px; font-size: 0.9rem; display: none;"></div>
+        <button id="auth-button" class="btn btn-outline" style="position: absolute; top: 10px; left: 20px;">
+            <i class="fas fa-sign-in-alt"></i> Connexion
+        </button>
+    </header>
+    <div class="container">
         <div class="app-grid">
             <div class="panel">
                 <h2><i class="fas fa-edit"></i> Création du Devis</h2>
-                
                 <div class="form-group">
                     <div class="form-row">
                         <div class="form-group">
@@ -694,7 +620,6 @@
                             <input type="date" id="quote-date">
                         </div>
                     </div>
-                    
                     <div class="form-row">
                         <div class="form-group">
                             <label for="validity">Validité (jours)</label>
@@ -711,7 +636,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="form-group">
                     <h2><i class="fas fa-user-tie"></i> Informations Client</h2>
                     <div class="form-group">
@@ -733,7 +657,6 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="form-group">
                     <h2><i class="fas fa-boxes"></i> Articles</h2>
                     <div class="items-container">
@@ -752,7 +675,6 @@
                         <i class="fas fa-plus"></i> Ajouter un article
                     </button>
                 </div>
-
                 <div class="form-group">
                     <h2><i class="fas fa-percentage"></i> Taxes & Remises</h2>
                     <div class="form-row">
@@ -766,12 +688,10 @@
                         </div>
                     </div>
                 </div>
-
                 <div class="form-group">
                     <h2><i class="fas fa-comment-dots"></i> Notes</h2>
                     <textarea id="notes" placeholder="Conditions de paiement, informations supplémentaires..."></textarea>
                 </div>
-
                 <div class="actions">
                     <button id="load-quote" class="btn btn-outline">
                         <i class="fas fa-folder-open"></i> Charger
@@ -790,7 +710,6 @@
                     </button>
                 </div>
             </div>
-
             <div class="panel">
                 <h2><i class="fas fa-eye"></i> Aperçu du Devis</h2>
                 <div id="quote-preview" class="quote-preview">
@@ -802,14 +721,12 @@
                             <div><strong>Validité:</strong> <span id="preview-validity">30 jours</span></div>
                         </div>
                     </div>
-
                     <div class="quote-client">
                         <h3>Client</h3>
                         <div id="preview-client-name">Entreprise Client</div>
                         <div id="preview-client-address">123 Rue Principale, Ville</div>
                         <div id="preview-client-contact">contact@client.com | +216 12 345 678</div>
                     </div>
-
                     <table class="quote-table">
                         <thead>
                             <tr>
@@ -823,7 +740,6 @@
                             <!-- Items will be added here -->
                         </tbody>
                     </table>
-
                     <table class="quote-totals">
                         <tr>
                             <td>Sous-total:</td>
@@ -842,7 +758,6 @@
                             <td id="preview-total"><strong>0.00 DT</strong></td>
                         </tr>
                     </table>
-
                     <div class="quote-notes">
                         <h3>Notes</h3>
                         <div id="preview-notes">Aucune note spécifiée.</div>
@@ -851,7 +766,6 @@
             </div>
         </div>
     </div>
-
     <!-- Modal pour charger les devis existants -->
     <div id="quotesModal" class="modal">
         <div class="modal-content">
@@ -859,31 +773,49 @@
                 <h2 class="modal-title"><i class="fas fa-folder-open"></i> Devis enregistrés</h2>
                 <span class="close">&times;</span>
             </div>
-            
             <div id="quotes-list" class="quotes-list">
                 <!-- Liste des devis sera ajoutée ici -->
             </div>
-            
             <div class="modal-actions">
                 <button id="cancel-load" class="btn btn-danger">Fermer</button>
             </div>
         </div>
     </div>
-
 <footer>
     <p>© <span id="current-year"></span> Générateur de Devis Professionnel | Tous droits réservés à A³I</p>
 </footer>
-
 <script>
     // Afficher l'année en cours dans le footer
     document.getElementById('current-year').textContent = new Date().getFullYear();
 </script>
-
     <div id="toast" class="toast">
         <i class="fas fa-check-circle"></i>
         <span class="toast-message"></span>
     </div>
-
+    <!-- Modal de connexion -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header">
+                <h2 class="modal-title"><i class="fas fa-sign-in-alt"></i> Connexion</h2>
+            </div>
+            <div class="form-group" style="padding: 1.5rem;">
+                <div class="form-group">
+                    <label for="login-email">Email</label>
+                    <input type="email" id="login-email" placeholder="votre@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Mot de passe</label>
+                    <input type="password" id="login-password" placeholder="Votre mot de passe">
+                </div>
+                <div id="login-error" style="color: var(--danger); margin: 1rem 0; display: none;"></div>
+                <div class="modal-actions">
+                    <button id="login-submit" class="btn btn-primary">
+                        <i class="fas fa-sign-in-alt"></i> Se connecter
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
     <script>
         // Initialize Firebase
         const firebaseConfig = {
@@ -895,64 +827,159 @@
             messagingSenderId: "42128207267",
             appId: "1:42128207267:web:156f6e73222fe8eebb3e16"
         };
-
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         const database = firebase.database();
-
+        const auth = firebase.auth(); // Ajout du service d'authentification
         // Initialize jsPDF
         const { jsPDF } = window.jspdf;
-
         // Current quote ID for update
         let currentQuoteId = null;
-
+        // État d'authentification
+        let currentUser = null;
+        // Références aux éléments
+        const blurOverlay = document.getElementById('blur-overlay');
+        // Vérifier l'état de connexion au chargement
+        auth.onAuthStateChanged(user => {
+            currentUser = user;
+            updateAuthUI();
+            if (user) {
+                // Utilisateur connecté - retirer le flou
+                document.body.classList.remove('blur-active');
+                blurOverlay.classList.add('hidden');
+                console.log("Utilisateur connecté:", user.email);
+            } else {
+                // Utilisateur non connecté - appliquer le flou et ouvrir la modale
+                document.body.classList.add('blur-active');
+                blurOverlay.classList.remove('hidden');
+                showLoginModal();
+                console.log("Utilisateur déconnecté");
+            }
+        });
+        // Mettre à jour l'UI en fonction de l'état d'authentification
+        function updateAuthUI() {
+            const authBtn = document.getElementById('auth-button');
+            const userInfo = document.getElementById('user-info');
+            if (currentUser) {
+                authBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i>';
+                authBtn.onclick = logout;
+                userInfo.textContent = `Connecté: ${currentUser.email}`;
+                userInfo.style.display = 'block';
+            } else {
+                authBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Connexion';
+                authBtn.onclick = showLoginModal;
+                userInfo.style.display = 'none';
+            }
+        }
+        // Fonction de connexion
+        function login(email, password) {
+            return auth.signInWithEmailAndPassword(email, password)
+                .catch(error => {
+                    console.error("Erreur de connexion:", error);
+                    throw error;
+                });
+        }
+        // Fonction de déconnexion
+        function logout() {
+            if (confirm('Voulez-vous vraiment vous déconnecter ?')) {
+                return auth.signOut()
+                    .then(() => {
+                        showToast('Déconnexion réussie');
+                        currentQuoteId = null;
+                        toggleUpdateButton(false);
+                        resetForm(); // Réinitialiser le formulaire à la déconnexion
+                    })
+                    .catch(error => {
+                        console.error("Erreur de déconnexion:", error);
+                        showToast('Erreur lors de la déconnexion', 'error');
+                    });
+            }
+        }
+        // Gestion de la modale de connexion
+        function showLoginModal() {
+            document.getElementById('loginModal').style.display = 'block';
+        }
+        function closeLoginModal() {
+            document.getElementById('loginModal').style.display = 'none';
+            document.getElementById('login-error').style.display = 'none';
+        }
+        // Fermer la modale si on clique en dehors
+        window.onclick = function(event) {
+          if (event.target == document.getElementById('loginModal')) {
+            // Ne pas fermer la modale si l'utilisateur n'est pas connecté
+            if (!currentUser) {
+                // On laisse la modale ouverte
+                return;
+            } else {
+                closeLoginModal();
+            }
+          }
+        }
+        // Gestion de la soumission du formulaire
+        document.getElementById('login-submit').addEventListener('click', () => {
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            const errorElement = document.getElementById('login-error');
+            if (!email || !password) {
+                errorElement.textContent = 'Veuillez remplir tous les champs';
+                errorElement.style.display = 'block';
+                return;
+            }
+            login(email, password)
+                .then(() => {
+                    closeLoginModal();
+                    showToast('Connexion réussie!');
+                })
+                .catch(error => {
+                    let errorMessage = "Erreur de connexion";
+                    if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+                        errorMessage = "Email ou mot de passe incorrect";
+                    } else if (error.code === 'auth/too-many-requests') {
+                        errorMessage = "Trop de tentatives. Compte temporairement bloqué";
+                    } else {
+                        errorMessage = error.message; // Afficher le message d'erreur Firebase par défaut
+                    }
+                    errorElement.textContent = errorMessage;
+                    errorElement.style.display = 'block';
+                });
+        });
         document.addEventListener('DOMContentLoaded', function() {
             // Set today's date as default
             const today = new Date().toISOString().split('T')[0];
             document.getElementById('quote-date').value = today;
             updatePreview();
-
             // Add item button
             document.getElementById('add-item').addEventListener('click', addNewItem);
-
             // Generate PDF button
             document.getElementById('generate-pdf').addEventListener('click', generatePDF);
-
             // Save quote button
             document.getElementById('save-quote').addEventListener('click', saveQuote);
-
             // Update quote button
             document.getElementById('update-quote').addEventListener('click', updateQuote);
-
             // Load quote button
             document.getElementById('load-quote').addEventListener('click', openQuotesModal);
-
             // Reset form button
             document.getElementById('reset-form').addEventListener('click', resetForm);
-
             // Modal close buttons
             document.querySelector('.close').addEventListener('click', closeQuotesModal);
             document.getElementById('cancel-load').addEventListener('click', closeQuotesModal);
-
             // Input event listeners for live preview
             const inputs = [
                 'quote-number', 'quote-date', 'validity', 'currency',
                 'client-name', 'client-address', 'client-email', 'client-phone',
                 'discount', 'tax', 'notes'
             ];
-
             inputs.forEach(id => {
                 document.getElementById(id).addEventListener('input', updatePreview);
             });
-
             // Add initial item
             addNewItem();
         });
-
         function addNewItem() {
             const itemsList = document.getElementById('items-list');
             const itemCount = itemsList.children.length + 1;
-
             const itemRow = document.createElement('div');
             itemRow.className = 'item-row';
             itemRow.innerHTML = `
@@ -972,13 +999,10 @@
                     <button class="btn btn-danger btn-sm remove-item"><i class="fas fa-trash"></i></button>
                 </div>
             `;
-
             itemsList.appendChild(itemRow);
-
             // Add events for automatic calculation
             const quantityInput = itemRow.querySelector('.item-quantity');
             const priceInput = itemRow.querySelector('.item-unit-price');
-            
             const calculateTotal = () => {
                 const quantity = parseFloat(quantityInput.value) || 0;
                 const price = parseFloat(priceInput.value) || 0;
@@ -986,58 +1010,46 @@
                 itemRow.querySelector('.item-total-value').textContent = total.toFixed(2);
                 updatePreview();
             };
-
             quantityInput.addEventListener('input', calculateTotal);
             priceInput.addEventListener('input', calculateTotal);
-
             // Add event to remove item
             itemRow.querySelector('.remove-item').addEventListener('click', function() {
                 itemsList.removeChild(itemRow);
                 updatePreview();
             });
-
             updatePreview();
         }
-
         function updatePreview() {
             // Update header information
             document.getElementById('preview-number').textContent = document.getElementById('quote-number').value || 'DEV-0000';
-            
             const dateValue = document.getElementById('quote-date').value;
             if (dateValue) {
                 const date = new Date(dateValue);
                 document.getElementById('preview-date').textContent = date.toLocaleDateString('fr-FR');
             }
-            
-            document.getElementById('preview-validity').textContent = 
+            document.getElementById('preview-validity').textContent =
                 `${document.getElementById('validity').value || 0} jours`;
-
             // Update client information
-            document.getElementById('preview-client-name').textContent = 
+            document.getElementById('preview-client-name').textContent =
                 document.getElementById('client-name').value || 'Non spécifié';
-            document.getElementById('preview-client-address').textContent = 
+            document.getElementById('preview-client-address').textContent =
                 document.getElementById('client-address').value || 'Non spécifié';
-            
             const clientEmail = document.getElementById('client-email').value || '';
             const clientPhone = document.getElementById('client-phone').value || '';
-            document.getElementById('preview-client-contact').textContent = 
+            document.getElementById('preview-client-contact').textContent =
                 `${clientEmail}${clientEmail && clientPhone ? ' | ' : ''}${clientPhone}`;
-
             // Update items
             const previewItems = document.getElementById('preview-items');
             previewItems.innerHTML = '';
-            
             const currency = document.getElementById('currency').value;
             const itemsList = document.getElementById('items-list');
             let subtotal = 0;
-            
             Array.from(itemsList.children).forEach(itemRow => {
                 const description = itemRow.querySelector('.item-description').value || 'Article';
                 const quantity = parseFloat(itemRow.querySelector('.item-quantity').value) || 0;
                 const price = parseFloat(itemRow.querySelector('.item-unit-price').value) || 0;
                 const total = quantity * price;
                 subtotal += total;
-                
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${description}</td>
@@ -1047,157 +1059,124 @@
                 `;
                 previewItems.appendChild(row);
             });
-
             // Update totals
             const discountRate = parseFloat(document.getElementById('discount').value) || 0;
             const discountAmount = subtotal * discountRate / 100;
             const taxRate = parseFloat(document.getElementById('tax').value) || 0;
             const taxAmount = (subtotal - discountAmount) * taxRate / 100;
             const total = subtotal - discountAmount + taxAmount;
-            
-            document.getElementById('preview-subtotal').textContent = 
+            document.getElementById('preview-subtotal').textContent =
                 `${subtotal.toFixed(2)} ${currency}`;
             document.getElementById('preview-discount-rate').textContent = discountRate;
-            document.getElementById('preview-discount').textContent = 
+            document.getElementById('preview-discount').textContent =
                 `-${discountAmount.toFixed(2)} ${currency}`;
             document.getElementById('preview-tax-rate').textContent = taxRate;
-            document.getElementById('preview-tax').textContent = 
+            document.getElementById('preview-tax').textContent =
                 `+${taxAmount.toFixed(2)} ${currency}`;
-            document.getElementById('preview-total').innerHTML = 
+            document.getElementById('preview-total').innerHTML =
                 `<strong>${total.toFixed(2)} ${currency}</strong>`;
-            
             // Update notes
             const notes = document.getElementById('notes').value;
-            document.getElementById('preview-notes').textContent = 
+            document.getElementById('preview-notes').textContent =
                 notes || 'Aucune note spécifiée.';
-            
             // Update currency symbols
             document.querySelectorAll('.currency').forEach(el => {
                 el.textContent = currency;
             });
         }
-
         function generatePDF() {
             const doc = new jsPDF();
-            
             // Document title
             doc.setFontSize(18);
             doc.setTextColor(58, 12, 163);
             doc.text('DEVIS', 105, 20, { align: 'center' });
-            
             // Quote information
             doc.setFontSize(10);
             doc.setTextColor(0, 0, 0);
-            
             const quoteNumber = document.getElementById('preview-number').textContent;
             const quoteDate = document.getElementById('preview-date').textContent;
             const quoteValidity = document.getElementById('preview-validity').textContent;
-            
             doc.text(`N°: ${quoteNumber}`, 160, 20);
             doc.text(`Date: ${quoteDate}`, 160, 26);
             doc.text(`Validité: ${quoteValidity}`, 160, 32);
-            
             // Client information
             doc.setFontSize(12);
             doc.text('Client:', 20, 40);
-            
             const clientName = document.getElementById('preview-client-name').textContent;
             const clientAddress = document.getElementById('preview-client-address').textContent;
             const clientContact = document.getElementById('preview-client-contact').textContent;
-            
             doc.setFontSize(10);
             doc.text(clientName, 20, 46);
-            
             const addressLines = doc.splitTextToSize(clientAddress, 80);
             doc.text(addressLines, 20, 52);
-            
             doc.text(clientContact, 20, 58 + (addressLines.length - 1) * 6);
-            
             // Items table
             doc.setFontSize(12);
             doc.text('Articles:', 20, 80);
-            
             // Table headers
             doc.setFillColor(248, 249, 250);
             doc.rect(20, 85, 170, 10, 'F');
             doc.setTextColor(0, 0, 0);
             doc.setFontSize(10);
             doc.setFont(undefined, 'bold');
-            
             doc.text('Description', 20, 91);
             doc.text('Quantité', 110, 91);
             doc.text('Prix unitaire', 130, 91);
             doc.text('Total', 170, 91, { align: 'right' });
-            
             // Items rows
             doc.setFont(undefined, 'normal');
             let y = 95;
             const itemsList = document.getElementById('items-list');
             const currency = document.getElementById('currency').value;
             let subtotal = 0;
-            
             Array.from(itemsList.children).forEach(itemRow => {
                 const description = itemRow.querySelector('.item-description').value || 'Article';
                 const quantity = parseFloat(itemRow.querySelector('.item-quantity').value) || 0;
                 const price = parseFloat(itemRow.querySelector('.item-unit-price').value) || 0;
                 const total = quantity * price;
                 subtotal += total;
-                
                 const descLines = doc.splitTextToSize(description, 80);
-                
                 // Check if we need a new page
                 if (y + (descLines.length * 6) > 250) {
                     doc.addPage();
                     y = 20;
                 }
-                
                 doc.text(descLines, 20, y + 6);
                 doc.text(quantity.toString(), 110, y + 6);
                 doc.text(`${price.toFixed(2)} ${currency}`, 130, y + 6);
                 doc.text(`${total.toFixed(2)} ${currency}`, 170, y + 6, { align: 'right' });
-                
                 y += 6 + (descLines.length - 1) * 6;
             });
-            
             // Totals
             const discountRate = parseFloat(document.getElementById('discount').value) || 0;
             const discountAmount = subtotal * discountRate / 100;
             const taxRate = parseFloat(document.getElementById('tax').value) || 0;
             const taxAmount = (subtotal - discountAmount) * taxRate / 100;
             const total = subtotal - discountAmount + taxAmount;
-            
             doc.setFontSize(10);
             doc.text(`Sous-total:`, 130, y + 15);
             doc.text(`${subtotal.toFixed(2)} ${currency}`, 170, y + 15, { align: 'right' });
-            
             doc.text(`Remise (${discountRate}%):`, 130, y + 21);
             doc.text(`-${discountAmount.toFixed(2)} ${currency}`, 170, y + 21, { align: 'right' });
-            
             doc.text(`TVA (${taxRate}%):`, 130, y + 27);
             doc.text(`+${taxAmount.toFixed(2)} ${currency}`, 170, y + 27, { align: 'right' });
-            
             doc.setFontSize(12);
             doc.setFont(undefined, 'bold');
             doc.text(`Total:`, 130, y + 35);
             doc.text(`${total.toFixed(2)} ${currency}`, 170, y + 35, { align: 'right' });
-            
             // Notes
             const notes = document.getElementById('notes').value || 'Aucune note spécifiée.';
             if (notes) {
                 doc.setFontSize(10);
                 doc.setFont(undefined, 'normal');
                 doc.text('Notes:', 20, y + 50);
-                
                 const notesLines = doc.splitTextToSize(notes, 170);
                 doc.text(notesLines, 20, y + 56);
             }
-            
             // Save the PDF
             doc.save(`devis-${quoteNumber}.pdf`);
-            
             showToast('PDF généré avec succès!');
         }
-
         function saveQuote() {
             // Get and validate data
             const quoteData = {
@@ -1218,7 +1197,6 @@
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             };
-
             // Validate items
             const itemsList = document.getElementById('items-list');
             Array.from(itemsList.children).forEach(itemRow => {
@@ -1227,41 +1205,33 @@
                     quantity: parseFloat(itemRow.querySelector('.item-quantity').value) || 0,
                     price: parseFloat(itemRow.querySelector('.item-unit-price').value) || 0
                 };
-                
                 // Additional validation
                 if (isNaN(item.quantity)) item.quantity = 0;
                 if (isNaN(item.price)) item.price = 0;
-                
                 quoteData.items.push(item);
             });
-
             // Calculate totals
             let subtotal = 0;
             quoteData.items.forEach(item => {
                 subtotal += item.quantity * item.price;
             });
-            
             const discountAmount = subtotal * parseFloat(quoteData.discount) / 100;
             const taxAmount = (subtotal - discountAmount) * parseFloat(quoteData.tax) / 100;
             const total = subtotal - discountAmount + taxAmount;
-            
             quoteData.subtotal = subtotal.toFixed(2);
             quoteData.discountAmount = discountAmount.toFixed(2);
             quoteData.taxAmount = taxAmount.toFixed(2);
             quoteData.total = total.toFixed(2);
-
             // Validate quote number
             if (!quoteData.number) {
                 showToast('Veuillez saisir un numéro de devis', 'error');
                 return;
             }
-
             // Validate items
             if (quoteData.items.length === 0) {
                 showToast('Veuillez ajouter au moins un article', 'error');
                 return;
             }
-
             // Save to Firebase
             try {
                 const newQuoteRef = database.ref('quotes').push();
@@ -1280,13 +1250,11 @@
                 showToast('Erreur de validation des données', 'error');
             }
         }
-
         function updateQuote() {
             if (!currentQuoteId) {
                 showToast('Aucun devis sélectionné pour mise à jour', 'error');
                 return;
             }
-
             // Get and validate data
             const quoteData = {
                 number: document.getElementById('quote-number').value || '',
@@ -1305,7 +1273,6 @@
                 notes: document.getElementById('notes').value || '',
                 updatedAt: new Date().toISOString()
             };
-
             // Validate items
             const itemsList = document.getElementById('items-list');
             Array.from(itemsList.children).forEach(itemRow => {
@@ -1314,40 +1281,32 @@
                     quantity: parseFloat(itemRow.querySelector('.item-quantity').value) || 0,
                     price: parseFloat(itemRow.querySelector('.item-unit-price').value) || 0
                 };
-                
                 if (isNaN(item.quantity)) item.quantity = 0;
                 if (isNaN(item.price)) item.price = 0;
-                
                 quoteData.items.push(item);
             });
-
             // Calculate totals
             let subtotal = 0;
             quoteData.items.forEach(item => {
                 subtotal += item.quantity * item.price;
             });
-            
             const discountAmount = subtotal * parseFloat(quoteData.discount) / 100;
             const taxAmount = (subtotal - discountAmount) * parseFloat(quoteData.tax) / 100;
             const total = subtotal - discountAmount + taxAmount;
-            
             quoteData.subtotal = subtotal.toFixed(2);
             quoteData.discountAmount = discountAmount.toFixed(2);
             quoteData.taxAmount = taxAmount.toFixed(2);
             quoteData.total = total.toFixed(2);
-
             // Validate quote number
             if (!quoteData.number) {
                 showToast('Veuillez saisir un numéro de devis', 'error');
                 return;
             }
-
             // Validate items
             if (quoteData.items.length === 0) {
                 showToast('Veuillez ajouter au moins un article', 'error');
                 return;
             }
-
             // Update in Firebase
             try {
                 database.ref('quotes/' + currentQuoteId).update(quoteData)
@@ -1363,11 +1322,9 @@
                 showToast('Erreur de validation des données', 'error');
             }
         }
-
         function toggleUpdateButton(show) {
             const saveBtn = document.getElementById('save-quote');
             const updateBtn = document.getElementById('update-quote');
-            
             if (show) {
                 saveBtn.style.display = 'none';
                 updateBtn.style.display = 'inline-flex';
@@ -1376,22 +1333,17 @@
                 updateBtn.style.display = 'none';
             }
         }
-
         function openQuotesModal() {
             const modal = document.getElementById('quotesModal');
             const quotesList = document.getElementById('quotes-list');
-            
             // Show modal
             modal.style.display = 'block';
-            
             // Load quotes from Firebase
             quotesList.innerHTML = '<p>Chargement des devis...</p>';
-            
             database.ref('quotes').once('value')
                 .then(snapshot => {
                     const quotes = snapshot.val();
                     quotesList.innerHTML = '';
-                    
                     if (!quotes) {
                         quotesList.innerHTML = `
                             <div class="empty-state">
@@ -1401,13 +1353,11 @@
                         `;
                         return;
                     }
-                    
                     // Convert to array and sort by date
                     const quotesArray = Object.entries(quotes).map(([key, value]) => ({
                         id: key,
                         ...value
                     })).sort((a, b) => new Date(b.updatedAt || b.createdAt) - new Date(a.updatedAt || a.createdAt));
-                    
                     // Display each quote
                     quotesArray.forEach(quote => {
                         const quoteItem = document.createElement('div');
@@ -1428,10 +1378,8 @@
                                 </button>
                             </div>
                         `;
-                        
                         quotesList.appendChild(quoteItem);
                     });
-
                     // Add event listeners to buttons
                     document.querySelectorAll('.load-quote-btn').forEach(btn => {
                         btn.addEventListener('click', function(e) {
@@ -1440,7 +1388,6 @@
                             loadQuote(quoteId);
                         });
                     });
-
                     document.querySelectorAll('.delete-quote-btn').forEach(btn => {
                         btn.addEventListener('click', function(e) {
                             e.stopPropagation();
@@ -1448,7 +1395,6 @@
                             deleteQuote(quoteId);
                         });
                     });
-
                     // Add click event to load quote
                     document.querySelectorAll('.quote-item').forEach(item => {
                         item.addEventListener('click', function() {
@@ -1467,11 +1413,9 @@
                     console.error('Firebase error:', error);
                 });
         }
-
         function closeQuotesModal() {
             document.getElementById('quotesModal').style.display = 'none';
         }
-
         function loadQuote(quoteId) {
             database.ref('quotes/' + quoteId).once('value')
                 .then(snapshot => {
@@ -1480,30 +1424,24 @@
                         showToast('Devis non trouvé', 'error');
                         return;
                     }
-
                     currentQuoteId = quoteId;
-                    
                     // Fill form fields with quote data
                     document.getElementById('quote-number').value = quote.number || '';
                     document.getElementById('quote-date').value = quote.date || new Date().toISOString().split('T')[0];
                     document.getElementById('validity').value = quote.validity || '30';
                     document.getElementById('currency').value = quote.currency || 'DT';
-                    
                     // Client information
                     document.getElementById('client-name').value = quote.client?.name || '';
                     document.getElementById('client-address').value = quote.client?.address || '';
                     document.getElementById('client-email').value = quote.client?.email || '';
                     document.getElementById('client-phone').value = quote.client?.phone || '';
-                    
                     // Taxes and discounts
                     document.getElementById('discount').value = quote.discount || '0';
                     document.getElementById('tax').value = quote.tax || '19';
                     document.getElementById('notes').value = quote.notes || '';
-                    
                     // Items
                     const itemsList = document.getElementById('items-list');
                     itemsList.innerHTML = '';
-                    
                     if (quote.items && quote.items.length > 0) {
                         quote.items.forEach((item, index) => {
                             const itemRow = document.createElement('div');
@@ -1525,13 +1463,10 @@
                                     <button class="btn btn-danger btn-sm remove-item"><i class="fas fa-trash"></i></button>
                                 </div>
                             `;
-                            
                             itemsList.appendChild(itemRow);
-                            
                             // Add events
                             const quantityInput = itemRow.querySelector('.item-quantity');
                             const priceInput = itemRow.querySelector('.item-unit-price');
-                            
                             const calculateTotal = () => {
                                 const quantity = parseFloat(quantityInput.value) || 0;
                                 const price = parseFloat(priceInput.value) || 0;
@@ -1539,10 +1474,8 @@
                                 itemRow.querySelector('.item-total-value').textContent = total.toFixed(2);
                                 updatePreview();
                             };
-
                             quantityInput.addEventListener('input', calculateTotal);
                             priceInput.addEventListener('input', calculateTotal);
-                            
                             itemRow.querySelector('.remove-item').addEventListener('click', function() {
                                 itemsList.removeChild(itemRow);
                                 updatePreview();
@@ -1552,7 +1485,6 @@
                         // Add empty item if no items exist
                         addNewItem();
                     }
-                    
                     updatePreview();
                     toggleUpdateButton(true);
                     closeQuotesModal();
@@ -1563,7 +1495,6 @@
                     showToast('Erreur lors du chargement du devis', 'error');
                 });
         }
-
         function deleteQuote(quoteId) {
             if (confirm('Voulez-vous vraiment supprimer ce devis? Cette action est irréversible.')) {
                 database.ref('quotes/' + quoteId).remove()
@@ -1581,40 +1512,31 @@
                     });
             }
         }
-
         function resetForm() {
             if (confirm('Voulez-vous vraiment réinitialiser le formulaire? Toutes les modifications non enregistrées seront perdues.')) {
                 document.getElementById('quote-number').value = '';
                 document.getElementById('quote-date').value = new Date().toISOString().split('T')[0];
                 document.getElementById('validity').value = '30';
                 document.getElementById('currency').value = 'DT';
-                
                 document.getElementById('client-name').value = '';
                 document.getElementById('client-address').value = '';
                 document.getElementById('client-email').value = '';
                 document.getElementById('client-phone').value = '';
-                
                 document.getElementById('discount').value = '0';
                 document.getElementById('tax').value = '19';
                 document.getElementById('notes').value = '';
-                
                 document.getElementById('items-list').innerHTML = '';
                 addNewItem();
-                
                 currentQuoteId = null;
                 toggleUpdateButton(false);
-                
                 showToast('Formulaire réinitialisé!');
             }
         }
-
         function showToast(message, type = 'success') {
             const toast = document.getElementById('toast');
             const toastMessage = toast.querySelector('.toast-message');
-            
             toast.className = 'toast'; // Reset classes
             toast.classList.add(type);
-            
             // Set icon based on type
             const icon = toast.querySelector('i');
             if (type === 'error') {
@@ -1624,10 +1546,8 @@
             } else {
                 icon.className = 'fas fa-check-circle';
             }
-            
             toastMessage.textContent = message;
             toast.classList.add('show');
-            
             setTimeout(() => {
                 toast.classList.remove('show');
             }, 3000);
