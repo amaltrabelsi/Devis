@@ -8,6 +8,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -570,7 +571,6 @@
         ::-webkit-scrollbar-thumb:hover {
             background: var(--dark);
         }
-
         /* Styles pour le flou */
         #blur-overlay {
             position: fixed;
@@ -591,12 +591,84 @@
         body.blur-active {
             overflow: hidden; /* Empêche le scroll quand le flou est actif */
         }
+        /* Styles pour l'éditeur de texte riche */
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background-color: var(--light);
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            border-bottom: none;
+        }
+        .toolbar button {
+            background: white;
+            border: 1px solid var(--light-gray);
+            border-radius: 4px;
+            padding: 0.3rem 0.5rem;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+        .toolbar button:hover {
+            background-color: var(--light-gray);
+        }
+        .toolbar button.active {
+            background-color: var(--primary);
+            color: white;
+        }
+        #notes-container {
+            position: relative;
+        }
+        #notes {
+            border-top-left-radius: 0;
+            border-top-right-radius: 0;
+            min-height: 150px;
+            padding: 1rem;
+            border: 1px solid var(--light-gray);
+            border-top: none;
+            font-family: inherit;
+            font-size: 1rem;
+            resize: vertical;
+        }
+        #notes:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1);
+        }
+        /* Palette de couleurs */
+        .color-picker {
+            position: absolute;
+            background: white;
+            border: 1px solid var(--light-gray);
+            border-radius: var(--border-radius);
+            padding: 0.5rem;
+            box-shadow: var(--box-shadow);
+            z-index: 1000;
+            display: none; /* Initialement cachée */
+        }
+        .color-option {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+            margin: 0.2rem;
+            cursor: pointer;
+            border: 1px solid #ddd;
+        }
+        .color-option:hover {
+            transform: scale(1.1);
+        }
+        /* Styles pour l'aperçu des notes */
+        #preview-notes {
+            white-space: pre-wrap;
+            line-height: 1.5;
+        }
     </style>
 </head>
 <body class="blur-active">
     <!-- Overlay de flou -->
     <div id="blur-overlay"></div>
-
     <header>
         <h1><i class="fas fa-file-invoice"></i> Générateur de Devis Professionnel</h1>
         <p>Créez, enregistrez et exportez vos devis en PDF</p>
@@ -690,7 +762,33 @@
                 </div>
                 <div class="form-group">
                     <h2><i class="fas fa-comment-dots"></i> Notes</h2>
-                    <textarea id="notes" placeholder="Conditions de paiement, informations supplémentaires..."></textarea>
+                    <!-- Toolbar for rich text editing -->
+                    <div class="toolbar">
+                        <button id="bold-btn" title="Gras"><i class="fas fa-bold"></i></button>
+                        <button id="italic-btn" title="Italique"><i class="fas fa-italic"></i></button>
+                        <button id="underline-btn" title="Souligné"><i class="fas fa-underline"></i></button>
+                        <button id="bullet-list-btn" title="Liste à puces"><i class="fas fa-list-ul"></i></button>
+                        <button id="number-list-btn" title="Liste numérotée"><i class="fas fa-list-ol"></i></button>
+                        <button id="align-left-btn" title="Aligner à gauche"><i class="fas fa-align-left"></i></button>
+                        <button id="align-center-btn" title="Centrer"><i class="fas fa-align-center"></i></button>
+                        <button id="align-right-btn" title="Aligner à droite"><i class="fas fa-align-right"></i></button>
+                    </div>
+                    <div id="notes-container">
+                        <div id="notes" contenteditable="true" placeholder="Conditions de paiement, informations supplémentaires..."></div>
+                        <!-- Palette de couleurs -->
+                        <div id="color-picker" class="color-picker">
+                            <div class="color-option" style="background-color: #000000;" data-color="#000000"></div>
+                            <div class="color-option" style="background-color: #ff0000;" data-color="#ff0000"></div>
+                            <div class="color-option" style="background-color: #00ff00;" data-color="#00ff00"></div>
+                            <div class="color-option" style="background-color: #0000ff;" data-color="#0000ff"></div>
+                            <div class="color-option" style="background-color: #ffff00;" data-color="#ffff00"></div>
+                            <div class="color-option" style="background-color: #00ffff;" data-color="#00ffff"></div>
+                            <div class="color-option" style="background-color: #ff00ff;" data-color="#ff00ff"></div>
+                            <div class="color-option" style="background-color: #ffffff; border: 1px solid #ccc;" data-color="#ffffff"></div>
+                            <div class="color-option" style="background-color: #ff9900;" data-color="#ff9900"></div>
+                            <div class="color-option" style="background-color: #9900ff;" data-color="#9900ff"></div>
+                        </div>
+                    </div>
                 </div>
                 <div class="actions">
                     <button id="load-quote" class="btn btn-outline">
@@ -797,6 +895,7 @@
         <div class="modal-content" style="max-width: 400px;">
             <div class="modal-header">
                 <h2 class="modal-title"><i class="fas fa-sign-in-alt"></i> Connexion</h2>
+                <span class="close" onclick="closeLoginModal()">&times;</span>
             </div>
             <div class="form-group" style="padding: 1.5rem;">
                 <div class="form-group">
@@ -841,6 +940,8 @@
         let currentUser = null;
         // Références aux éléments
         const blurOverlay = document.getElementById('blur-overlay');
+        const colorPicker = document.getElementById('color-picker');
+        let isColorPickerVisible = false;
         // Vérifier l'état de connexion au chargement
         auth.onAuthStateChanged(user => {
             currentUser = user;
@@ -863,7 +964,7 @@
             const authBtn = document.getElementById('auth-button');
             const userInfo = document.getElementById('user-info');
             if (currentUser) {
-                authBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i>';
+                authBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Déconnexion';
                 authBtn.onclick = logout;
                 userInfo.textContent = `Connecté: ${currentUser.email}`;
                 userInfo.style.display = 'block';
@@ -904,18 +1005,6 @@
         function closeLoginModal() {
             document.getElementById('loginModal').style.display = 'none';
             document.getElementById('login-error').style.display = 'none';
-        }
-        // Fermer la modale si on clique en dehors
-        window.onclick = function(event) {
-          if (event.target == document.getElementById('loginModal')) {
-            // Ne pas fermer la modale si l'utilisateur n'est pas connecté
-            if (!currentUser) {
-                // On laisse la modale ouverte
-                return;
-            } else {
-                closeLoginModal();
-            }
-          }
         }
         // Gestion de la soumission du formulaire
         document.getElementById('login-submit').addEventListener('click', () => {
@@ -969,14 +1058,114 @@
             const inputs = [
                 'quote-number', 'quote-date', 'validity', 'currency',
                 'client-name', 'client-address', 'client-email', 'client-phone',
-                'discount', 'tax', 'notes'
+                'discount', 'tax'
             ];
             inputs.forEach(id => {
                 document.getElementById(id).addEventListener('input', updatePreview);
             });
             // Add initial item
             addNewItem();
+            // Rich text editor buttons
+            document.getElementById('bold-btn').addEventListener('click', () => formatText('bold'));
+            document.getElementById('italic-btn').addEventListener('click', () => formatText('italic'));
+            document.getElementById('underline-btn').addEventListener('click', () => formatText('underline'));
+            document.getElementById('bullet-list-btn').addEventListener('click', () => insertList('ul'));
+            document.getElementById('number-list-btn').addEventListener('click', () => insertList('ol'));
+            document.getElementById('align-left-btn').addEventListener('click', () => alignText('left'));
+            document.getElementById('align-center-btn').addEventListener('click', () => alignText('center'));
+            document.getElementById('align-right-btn').addEventListener('click', () => alignText('right'));
+            // Color picker options
+            document.querySelectorAll('.color-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    const color = this.getAttribute('data-color');
+                    document.execCommand('foreColor', false, color);
+                    document.getElementById('notes').focus();
+                    // Fermer la palette après sélection
+                    colorPicker.style.display = 'none';
+                    isColorPickerVisible = false;
+                    // S'assurer que l'écouteur temporaire est retiré
+                    document.removeEventListener('click', handleDocumentClickForColorPicker);
+                });
+            });
+            // Update preview when notes change
+            document.getElementById('notes').addEventListener('input', updatePreview);
         });
+        // Fonction gestionnaire dédiée pour fermer la palette via le document
+        function handleDocumentClickForColorPicker(e) {
+            // Vérifier que la palette est censée être visible
+            // et que le clic n'est ni sur le bouton ni dans la palette
+            if (isColorPickerVisible &&
+                e.target !== document.getElementById('color-btn') &&
+                !colorPicker.contains(e.target)) {
+
+                colorPicker.style.display = 'none';
+                isColorPickerVisible = false;
+                // Retirer cet écouteur spécifique après utilisation
+                document.removeEventListener('click', handleDocumentClickForColorPicker);
+            }
+        }
+        // Fonction pour basculer l'affichage de la palette de couleurs
+        function toggleColorPicker(event) {
+            // Empêcher la propagation du clic pour éviter d'autres gestionnaires
+            event.stopPropagation();
+
+            const colorBtn = document.getElementById('color-btn');
+            const rect = colorBtn.getBoundingClientRect();
+
+            if (isColorPickerVisible) {
+                // Si la palette est visible, la cacher
+                colorPicker.style.display = 'none';
+                isColorPickerVisible = false;
+                // Retirer l'écouteur temporaire s'il existe
+                document.removeEventListener('click', handleDocumentClickForColorPicker);
+            } else {
+                // Si la palette est cachée, la montrer
+                colorPicker.style.display = 'block';
+                // Positionne la palette sous le bouton
+                colorPicker.style.top = (rect.bottom + window.scrollY) + 'px';
+                colorPicker.style.left = (rect.left + window.scrollX) + 'px';
+                isColorPickerVisible = true;
+
+                // Ajouter un écouteur temporaire sur le document pour fermer la palette
+                // lors du prochain clic en dehors, en utilisant setTimeout pour éviter
+                // qu'il ne capture le clic actuel.
+                setTimeout(() => {
+                    document.addEventListener('click', handleDocumentClickForColorPicker);
+                }, 0);
+            }
+        }
+        // Fermer la modale si on clique en dehors - CORRIGE
+        window.onclick = function(event) {
+          // Fermer la modale de login si on clique en dehors ET que l'utilisateur est connecté
+          if (event.target == document.getElementById('loginModal')) {
+            if (currentUser) { // Ne ferme que si l'utilisateur est connecté
+              closeLoginModal();
+            }
+            return; // Important: sortir après avoir géré la modale
+          }
+
+          // *** GESTION DE LA PALETTE DE COULEURS ***
+          // La logique de fermeture est maintenant gérée par toggleColorPicker et handleDocumentClickForColorPicker
+          // Cette section est laissée vide intentionnellement ou peut contenir d'autres vérifications.
+          // *** FIN GESTION DE LA PALETTE DE COULEURS ***
+        }
+        // Rich text editor functions
+        function formatText(command) {
+            document.execCommand(command, false, null);
+            document.getElementById('notes').focus();
+        }
+        function insertList(type) {
+            if (type === 'ul') {
+                document.execCommand('insertUnorderedList', false, null);
+            } else {
+                document.execCommand('insertOrderedList', false, null);
+            }
+            document.getElementById('notes').focus();
+        }
+        function alignText(align) {
+            document.execCommand(`justify${align}`, false, null);
+            document.getElementById('notes').focus();
+        }
         function addNewItem() {
             const itemsList = document.getElementById('items-list');
             const itemCount = itemsList.children.length + 1;
@@ -1076,9 +1265,8 @@
             document.getElementById('preview-total').innerHTML =
                 `<strong>${total.toFixed(2)} ${currency}</strong>`;
             // Update notes
-            const notes = document.getElementById('notes').value;
-            document.getElementById('preview-notes').textContent =
-                notes || 'Aucune note spécifiée.';
+            const notesContent = document.getElementById('notes').innerHTML;
+            document.getElementById('preview-notes').innerHTML = notesContent || 'Aucune note spécifiée.';
             // Update currency symbols
             document.querySelectorAll('.currency').forEach(el => {
                 el.textContent = currency;
@@ -1086,92 +1274,162 @@
         }
         function generatePDF() {
             const doc = new jsPDF();
-            // Document title
-            doc.setFontSize(18);
-            doc.setTextColor(58, 12, 163);
-            doc.text('DEVIS', 105, 20, { align: 'center' });
-            // Quote information
-            doc.setFontSize(10);
-            doc.setTextColor(0, 0, 0);
+            // Get data from preview
             const quoteNumber = document.getElementById('preview-number').textContent;
             const quoteDate = document.getElementById('preview-date').textContent;
             const quoteValidity = document.getElementById('preview-validity').textContent;
-            doc.text(`N°: ${quoteNumber}`, 160, 20);
-            doc.text(`Date: ${quoteDate}`, 160, 26);
-            doc.text(`Validité: ${quoteValidity}`, 160, 32);
-            // Client information
-            doc.setFontSize(12);
-            doc.text('Client:', 20, 40);
             const clientName = document.getElementById('preview-client-name').textContent;
             const clientAddress = document.getElementById('preview-client-address').textContent;
             const clientContact = document.getElementById('preview-client-contact').textContent;
-            doc.setFontSize(10);
-            doc.text(clientName, 20, 46);
-            const addressLines = doc.splitTextToSize(clientAddress, 80);
-            doc.text(addressLines, 20, 52);
-            doc.text(clientContact, 20, 58 + (addressLines.length - 1) * 6);
-            // Items table
-            doc.setFontSize(12);
-            doc.text('Articles:', 20, 80);
-            // Table headers
-            doc.setFillColor(248, 249, 250);
-            doc.rect(20, 85, 170, 10, 'F');
-            doc.setTextColor(0, 0, 0);
-            doc.setFontSize(10);
-            doc.setFont(undefined, 'bold');
-            doc.text('Description', 20, 91);
-            doc.text('Quantité', 110, 91);
-            doc.text('Prix unitaire', 130, 91);
-            doc.text('Total', 170, 91, { align: 'right' });
-            // Items rows
-            doc.setFont(undefined, 'normal');
-            let y = 95;
-            const itemsList = document.getElementById('items-list');
             const currency = document.getElementById('currency').value;
-            let subtotal = 0;
+            const subtotal = document.getElementById('preview-subtotal').textContent;
+            const discountRate = document.getElementById('preview-discount-rate').textContent;
+            const discountAmount = document.getElementById('preview-discount').textContent;
+            const taxRate = document.getElementById('preview-tax-rate').textContent;
+            const taxAmount = document.getElementById('preview-tax').textContent;
+            const total = document.getElementById('preview-total').textContent;
+            // Set font
+            doc.setFont("helvetica");
+            // Add company header
+            doc.setFillColor(67, 97, 238); // Primary color
+            doc.rect(0, 0, 210, 30, 'F');
+            doc.setTextColor(255, 255, 255);
+            doc.setFontSize(24);
+            doc.setFont(undefined, 'bold');
+            doc.text('DEVIS', 105, 20, { align: 'center' });
+            // Add quote info
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'normal');
+            doc.text(`N°: ${quoteNumber}`, 150, 40);
+            doc.text(`Date: ${quoteDate}`, 150, 48);
+            doc.text(`Validité: ${quoteValidity}`, 150, 56);
+            // Add client info
+            doc.setFillColor(248, 249, 250); // Light gray
+            doc.rect(10, 65, 190, 30, 'F');
+            doc.setTextColor(0, 0, 0);
+            doc.setFontSize(14);
+            doc.setFont(undefined, 'bold');
+            doc.text('Client', 15, 75);
+            doc.setFontSize(12);
+            doc.setFont(undefined, 'normal');
+            doc.text(clientName, 15, 85);
+            doc.text(clientAddress, 15, 92);
+            doc.text(clientContact, 15, 99);
+            // Add items table using autoTable plugin
+            const itemsData = [];
+            const itemsList = document.getElementById('items-list');
             Array.from(itemsList.children).forEach(itemRow => {
                 const description = itemRow.querySelector('.item-description').value || 'Article';
                 const quantity = parseFloat(itemRow.querySelector('.item-quantity').value) || 0;
                 const price = parseFloat(itemRow.querySelector('.item-unit-price').value) || 0;
                 const total = quantity * price;
-                subtotal += total;
-                const descLines = doc.splitTextToSize(description, 80);
-                // Check if we need a new page
-                if (y + (descLines.length * 6) > 250) {
-                    doc.addPage();
-                    y = 20;
-                }
-                doc.text(descLines, 20, y + 6);
-                doc.text(quantity.toString(), 110, y + 6);
-                doc.text(`${price.toFixed(2)} ${currency}`, 130, y + 6);
-                doc.text(`${total.toFixed(2)} ${currency}`, 170, y + 6, { align: 'right' });
-                y += 6 + (descLines.length - 1) * 6;
+                itemsData.push([
+                    description,
+                    quantity.toString(),
+                    `${price.toFixed(2)} ${currency}`,
+                    `${total.toFixed(2)} ${currency}`
+                ]);
             });
-            // Totals
-            const discountRate = parseFloat(document.getElementById('discount').value) || 0;
-            const discountAmount = subtotal * discountRate / 100;
-            const taxRate = parseFloat(document.getElementById('tax').value) || 0;
-            const taxAmount = (subtotal - discountAmount) * taxRate / 100;
-            const total = subtotal - discountAmount + taxAmount;
-            doc.setFontSize(10);
-            doc.text(`Sous-total:`, 130, y + 15);
-            doc.text(`${subtotal.toFixed(2)} ${currency}`, 170, y + 15, { align: 'right' });
-            doc.text(`Remise (${discountRate}%):`, 130, y + 21);
-            doc.text(`-${discountAmount.toFixed(2)} ${currency}`, 170, y + 21, { align: 'right' });
-            doc.text(`TVA (${taxRate}%):`, 130, y + 27);
-            doc.text(`+${taxAmount.toFixed(2)} ${currency}`, 170, y + 27, { align: 'right' });
+            doc.autoTable({
+                head: [['Description', 'Quantité', 'Prix unitaire', 'Total']],
+                body: itemsData,
+                startY: 105,
+                theme: 'grid',
+                headStyles: {
+                    fillColor: [67, 97, 238],
+                    textColor: [255, 255, 255],
+                    fontStyle: 'bold'
+                },
+                styles: {
+                    fontSize: 10,
+                    cellPadding: 3
+                },
+                columnStyles: {
+                    0: { cellWidth: 80 },
+                    1: { cellWidth: 25, halign: 'center' },
+                    2: { cellWidth: 35, halign: 'right' },
+                    3: { cellWidth: 35, halign: 'right' }
+                }
+            });
+            // Add totals
+            const finalY = doc.lastAutoTable.finalY;
             doc.setFontSize(12);
+            doc.setFont(undefined, 'normal');
+            // Subtotal
+            doc.text('Sous-total:', 140, finalY + 15);
+            doc.text(subtotal, 180, finalY + 15, { align: 'right' });
+            // Discount
+            if (parseFloat(discountRate) > 0) {
+                doc.text(`Remise (${discountRate}%):`, 140, finalY + 23);
+                doc.text(discountAmount, 180, finalY + 23, { align: 'right' });
+            }
+            // Tax
+            if (parseFloat(taxRate) > 0) {
+                doc.text(`TVA (${taxRate}%):`, 140, finalY + 31);
+                doc.text(taxAmount, 180, finalY + 31, { align: 'right' });
+            }
+            // Total
             doc.setFont(undefined, 'bold');
-            doc.text(`Total:`, 130, y + 35);
-            doc.text(`${total.toFixed(2)} ${currency}`, 170, y + 35, { align: 'right' });
-            // Notes
-            const notes = document.getElementById('notes').value || 'Aucune note spécifiée.';
-            if (notes) {
-                doc.setFontSize(10);
+            doc.text('TOTAL:', 140, finalY + 42);
+            doc.text(total, 180, finalY + 42, { align: 'right' });
+            // Add notes section with improved HTML processing
+            const notesContent = document.getElementById('notes').innerHTML;
+            if (notesContent && notesContent.trim() !== '') {
+                doc.setFontSize(12);
                 doc.setFont(undefined, 'normal');
-                doc.text('Notes:', 20, y + 50);
-                const notesLines = doc.splitTextToSize(notes, 170);
-                doc.text(notesLines, 20, y + 56);
+                doc.setTextColor(0, 0, 0);
+                // Add a title for notes
+                doc.text('Notes:', 15, finalY + 55);
+                // Process HTML content for PDF with better formatting
+                let yPosition = finalY + 65;
+                const tempDiv = document.createElement('div');
+                tempDiv.innerHTML = notesContent;
+                // Process each child node
+                const processNode = (node) => {
+                    if (node.nodeType === Node.TEXT_NODE) {
+                        const text = node.textContent.trim();
+                        if (text) {
+                            const lines = doc.splitTextToSize(text, 180);
+                            lines.forEach(line => {
+                                if (yPosition > 280) { // Check if we need a new page
+                                    doc.addPage();
+                                    yPosition = 20;
+                                }
+                                doc.text(line, 15, yPosition);
+                                yPosition += 7;
+                            });
+                        }
+                    } else if (node.nodeType === Node.ELEMENT_NODE) {
+                        let fontStyle = doc.getFont().fontStyle;
+                        let fontSize = doc.getFontSize();
+                        let textColor = doc.getTextColor();
+                        // Apply styles based on element type
+                        if (node.tagName === 'B' || node.tagName === 'STRONG') {
+                            doc.setFont(undefined, 'bold');
+                        } else if (node.tagName === 'I' || node.tagName === 'EM') {
+                            doc.setFont(undefined, 'italic');
+                        } else if (node.tagName === 'U') {
+                            // jsPDF doesn't have direct underline, we'll handle it after
+                        }
+                        // Process child nodes
+                        Array.from(node.childNodes).forEach(child => {
+                            processNode(child);
+                        });
+                        // Add line break after block elements
+                        if (['DIV', 'P', 'BR'].includes(node.tagName)) {
+                            yPosition += 5;
+                        }
+                        // Reset styles
+                        doc.setFont(undefined, fontStyle);
+                        doc.setFontSize(fontSize);
+                        // textColor reset is more complex in jsPDF, so we'll skip it for now
+                    }
+                };
+                // Process all nodes
+                Array.from(tempDiv.childNodes).forEach(node => {
+                    processNode(node);
+                });
             }
             // Save the PDF
             doc.save(`devis-${quoteNumber}.pdf`);
@@ -1193,7 +1451,7 @@
                 items: [],
                 discount: document.getElementById('discount').value || '0',
                 tax: document.getElementById('tax').value || '19',
-                notes: document.getElementById('notes').value || '',
+                notes: document.getElementById('notes').innerHTML || '', // Sauvegarder le HTML
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString()
             };
@@ -1270,7 +1528,7 @@
                 items: [],
                 discount: document.getElementById('discount').value || '0',
                 tax: document.getElementById('tax').value || '19',
-                notes: document.getElementById('notes').value || '',
+                notes: document.getElementById('notes').innerHTML || '', // Sauvegarder le HTML
                 updatedAt: new Date().toISOString()
             };
             // Validate items
@@ -1438,7 +1696,7 @@
                     // Taxes and discounts
                     document.getElementById('discount').value = quote.discount || '0';
                     document.getElementById('tax').value = quote.tax || '19';
-                    document.getElementById('notes').value = quote.notes || '';
+                    document.getElementById('notes').innerHTML = quote.notes || ''; // Charger le HTML
                     // Items
                     const itemsList = document.getElementById('items-list');
                     itemsList.innerHTML = '';
@@ -1524,7 +1782,7 @@
                 document.getElementById('client-phone').value = '';
                 document.getElementById('discount').value = '0';
                 document.getElementById('tax').value = '19';
-                document.getElementById('notes').value = '';
+                document.getElementById('notes').innerHTML = '';
                 document.getElementById('items-list').innerHTML = '';
                 addNewItem();
                 currentQuoteId = null;
