@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Générateur de Devis Pro</title>
+    <title>Générateur de Facture Pro</title>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.0/firebase-auth-compat.js"></script>
@@ -644,8 +644,8 @@
     <!-- Overlay de flou -->
     <div id="blur-overlay"></div>
     <header>
-        <h1><i class="fas fa-file-invoice"></i> Générateur de Devis Professionnel</h1>
-        <p>Créez, enregistrez et exportez vos devis en PDF</p>
+        <h1><i class="fas fa-file-invoice"></i> Générateur de Facture Professionnel</h1>
+        <p>Créez, enregistrez et exportez vos Facture en PDF</p>
         <div id="user-info" style="position: absolute; top: 10px; right: 20px; background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 20px; font-size: 0.9rem; display: none;"></div>
         <button id="auth-button" class="btn btn-outline" style="position: absolute; top: 10px; left: 20px;">
             <i class="fas fa-sign-in-alt"></i> Connexion
@@ -654,11 +654,11 @@
     <div class="container">
         <div class="app-grid">
             <div class="panel">
-                <h2><i class="fas fa-edit"></i> Création du Devis</h2>
+                <h2><i class="fas fa-edit"></i> Création du Facture</h2>
                 <div class="form-group">
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="quote-number">Numéro de devis</label>
+                            <label for="quote-number">Numéro de Facture</label>
                             <input type="text" id="quote-number" placeholder="DEV-2023-001">
                         </div>
                         <div class="form-group">
@@ -672,7 +672,7 @@
                             <input type="number" id="validity" value="30" min="1">
                         </div>
                         <div class="form-group">
-                            <label for="currency">Devise</label>
+                            <label for="currency">Facturee</label>
                             <select id="currency">
                                 <option value="€">EUR (€)</option>
                                 <option value="$">USD ($)</option>
@@ -774,10 +774,10 @@
                 </div>
             </div>
             <div class="panel">
-                <h2><i class="fas fa-eye"></i> Aperçu du Devis</h2>
+                <h2><i class="fas fa-eye"></i> Aperçu du Facture</h2>
                 <div id="quote-preview" class="quote-preview">
                     <div class="quote-header">
-                        <div class="quote-title">DEVIS</div>
+                        <div class="quote-title">Facture</div>
                         <div class="quote-meta">
                             <div><strong>N°:</strong> <span id="preview-number">DEV-2023-001</span></div>
                             <div><strong>Date:</strong> <span id="preview-date">01/01/2023</span></div>
@@ -829,15 +829,15 @@
             </div>
         </div>
     </div>
-    <!-- Modal pour charger les devis existants -->
+    <!-- Modal pour charger les Facture existants -->
     <div id="quotesModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 class="modal-title"><i class="fas fa-folder-open"></i> Devis enregistrés</h2>
+                <h2 class="modal-title"><i class="fas fa-folder-open"></i> Facture enregistrés</h2>
                 <span class="close">&times;</span>
             </div>
             <div id="quotes-list" class="quotes-list">
-                <!-- Liste des devis sera ajoutée ici -->
+                <!-- Liste des Facture sera ajoutée ici -->
             </div>
             <div class="modal-actions">
                 <button id="cancel-load" class="btn btn-danger">Fermer</button>
@@ -845,7 +845,7 @@
         </div>
     </div>
 <footer>
-    <p>© <span id="current-year"></span> Générateur de Devis Professionnel | Tous droits réservés à A³I</p>
+    <p>© <span id="current-year"></span> Générateur de Facture Professionnel | Tous droits réservés à A³I</p>
 </footer>
 <script>
     // Afficher l'année en cours dans le footer
@@ -1136,7 +1136,7 @@
                 doc.setFont("helvetica", "bold");
                 doc.setFontSize(22);
                 doc.setTextColor(67, 97, 238); // Primary color
-                doc.text('DEVIS', pageWidth / 2, currentY, { align: 'center' });
+                doc.text('Facture', pageWidth / 2, currentY, { align: 'center' });
                 currentY += 10;
 
                 doc.setFont("helvetica", "normal");
@@ -1305,7 +1305,7 @@ if (notesContent) {
                 
 
                 // Save the PDF
-                doc.save(`devis-${quoteNumber}.pdf`);
+                doc.save(`Facture-${quoteNumber}.pdf`);
                 showToast('PDF généré avec succès!');
             } catch (error) {
                 console.error("Erreur lors de la génération du PDF:", error);
@@ -1359,7 +1359,7 @@ if (notesContent) {
             quoteData.total = total.toFixed(2);
             // Validate quote number
             if (!quoteData.number) {
-                showToast('Veuillez saisir un numéro de devis', 'error');
+                showToast('Veuillez saisir un numéro de Facture', 'error');
                 return;
             }
             // Validate items
@@ -1372,7 +1372,7 @@ if (notesContent) {
                 const newQuoteRef = database.ref('quotes').push();
                 newQuoteRef.set(quoteData)
                     .then(() => {
-                        showToast('Devis enregistré avec succès!');
+                        showToast('Facture enregistré avec succès!');
                         currentQuoteId = newQuoteRef.key;
                         toggleUpdateButton(true);
                     })
@@ -1387,7 +1387,7 @@ if (notesContent) {
         }
         function updateQuote() {
             if (!currentQuoteId) {
-                showToast('Aucun devis sélectionné pour mise à jour', 'error');
+                showToast('Aucun Facture sélectionné pour mise à jour', 'error');
                 return;
             }
             // Get and validate data
@@ -1434,7 +1434,7 @@ if (notesContent) {
             quoteData.total = total.toFixed(2);
             // Validate quote number
             if (!quoteData.number) {
-                showToast('Veuillez saisir un numéro de devis', 'error');
+                showToast('Veuillez saisir un numéro de Facture', 'error');
                 return;
             }
             // Validate items
@@ -1446,7 +1446,7 @@ if (notesContent) {
             try {
                 database.ref('quotes/' + currentQuoteId).update(quoteData)
                     .then(() => {
-                        showToast('Devis mis à jour avec succès!');
+                        showToast('Facture mis à jour avec succès!');
                     })
                     .catch(error => {
                         console.error("Error details:", quoteData);
@@ -1474,7 +1474,7 @@ if (notesContent) {
             // Show modal
             modal.style.display = 'block';
             // Load quotes from Firebase
-            quotesList.innerHTML = '<p>Chargement des devis...</p>';
+            quotesList.innerHTML = '<p>Chargement des Facture...</p>';
             database.ref('quotes').once('value')
                 .then(snapshot => {
                     const quotes = snapshot.val();
@@ -1483,7 +1483,7 @@ if (notesContent) {
                         quotesList.innerHTML = `
                             <div class="empty-state">
                                 <i class="fas fa-folder-open"></i>
-                                <p>Aucun devis enregistré</p>
+                                <p>Aucun Facture enregistré</p>
                             </div>
                         `;
                         return;
@@ -1542,7 +1542,7 @@ if (notesContent) {
                     quotesList.innerHTML = `
                         <div class="empty-state">
                             <i class="fas fa-exclamation-triangle"></i>
-                            <p>Erreur lors du chargement des devis</p>
+                            <p>Erreur lors du chargement des Facture</p>
                         </div>
                     `;
                     console.error('Firebase error:', error);
@@ -1556,7 +1556,7 @@ if (notesContent) {
                 .then(snapshot => {
                     const quote = snapshot.val();
                     if (!quote) {
-                        showToast('Devis non trouvé', 'error');
+                        showToast('Facture non trouvé', 'error');
                         return;
                     }
                     currentQuoteId = quoteId;
@@ -1623,27 +1623,27 @@ if (notesContent) {
                     updatePreview();
                     toggleUpdateButton(true);
                     closeQuotesModal();
-                    showToast('Devis chargé avec succès!');
+                    showToast('Facture chargé avec succès!');
                 })
                 .catch(error => {
                     console.error('Error loading quote:', error);
-                    showToast('Erreur lors du chargement du devis', 'error');
+                    showToast('Erreur lors du chargement du Facture', 'error');
                 });
         }
         function deleteQuote(quoteId) {
-            if (confirm('Voulez-vous vraiment supprimer ce devis? Cette action est irréversible.')) {
+            if (confirm('Voulez-vous vraiment supprimer ce Facture? Cette action est irréversible.')) {
                 database.ref('quotes/' + quoteId).remove()
                     .then(() => {
                         if (currentQuoteId === quoteId) {
                             currentQuoteId = null;
                             toggleUpdateButton(false);
                         }
-                        showToast('Devis supprimé avec succès!');
+                        showToast('Facture supprimé avec succès!');
                         openQuotesModal(); // Refresh the list
                     })
                     .catch(error => {
                         console.error('Error deleting quote:', error);
-                        showToast('Erreur lors de la suppression du devis', 'error');
+                        showToast('Erreur lors de la suppression du Facture', 'error');
                     });
             }
         }
